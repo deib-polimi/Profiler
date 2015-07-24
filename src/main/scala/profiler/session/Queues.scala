@@ -1,8 +1,8 @@
-package mapreduce.session
+package profiler.session
 
 /**
  * @author alessandro
  */
 class Queues {
-  
+
 }

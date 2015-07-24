@@ -1,7 +1,7 @@
 /**
  *
  */
-package mapreduce
+package profiler
 
 /**
  * @author Alessandro
@@ -13,4 +13,4 @@ case object MAP extends TaskType;
 
 case object REDUCE extends TaskType;
 
-case object SHUFFLE extends TaskType; 
+case object SHUFFLE extends TaskType;

@@ -14,7 +14,7 @@ case class Record (val name : String, val durationMSec : Long,
     val startMSec : Long, val stopMSec : Long, val taskType : TaskType,
     val location : String) {
 
-    def asShuffle = Record (name, durationMSec, startMSec, stopMSec, SHUFFLE,
+    def asShuffle = Record (name, durationMSec, startMSec, stopMSec, ShuffleTask,
         location);
 
     def - (other : Record) = Record (name, durationMSec - other.durationMSec,
@@ -25,8 +25,8 @@ case class Record (val name : String, val durationMSec : Long,
 object Record {
 
     private def getType(input : String) : TaskType =
-	    if(input.split("_")(4).toInt == 0) MAP;
-	    else REDUCE;
+	    if(input.split("_")(4).toInt == 0) MapTask;
+	    else ReduceTask;
 
     private def parseDate (input : String) =
 	    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).parse(input).getTime;

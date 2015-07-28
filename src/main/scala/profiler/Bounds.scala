@@ -29,21 +29,21 @@ case class Bounds(simulation : Simulation, numCores : Int) {
 
     def reduceSlots = reduceRatio * slots;
 
-    def avgMap = simulation.avg(MAP);
+    def avgMap = simulation.avg(MapTask);
 
-    def avgReduce = simulation.avg(REDUCE);
+    def avgReduce = simulation.avg(ReduceTask);
 
-    def avgShuffle = simulation.avg(SHUFFLE);
+    def avgShuffle = simulation.avg(ShuffleTask);
 
-    def maxMap = simulation.max(MAP);
+    def maxMap = simulation.max(MapTask);
 
-    def maxReduce = simulation.max(REDUCE);
+    def maxReduce = simulation.max(ReduceTask);
 
-    def maxShuffle = simulation.max(SHUFFLE);
+    def maxShuffle = simulation.max(ShuffleTask);
 
-    def numMap = simulation.numOf(MAP);
+    def numMap = simulation.numOf(MapTask);
 
-    def numReduce = simulation.numOf(REDUCE);
+    def numReduce = simulation.numOf(ReduceTask);
 
     def upperBound = (avgMap * numMap - 2 * maxMap) / mapSlots +
       ((avgReduce + avgShuffle) * numReduce - 2 * (maxReduce + maxShuffle)) / reduceSlots +

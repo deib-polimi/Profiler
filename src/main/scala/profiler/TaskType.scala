@@ -9,8 +9,8 @@ package profiler
  */
 sealed abstract class TaskType;
 
-case object MAP extends TaskType;
+case object MapTask extends TaskType;
 
-case object REDUCE extends TaskType;
+case object ReduceTask extends TaskType;
 
-case object SHUFFLE extends TaskType;
+case object ShuffleTask extends TaskType;

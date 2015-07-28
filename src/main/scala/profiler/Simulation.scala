@@ -89,7 +89,7 @@ object Simulation {
 		    filter(x => duration.contains(x.tasks.head.name))
 		  val numTask = executions.map(_.tasks.size).reduce(Math.max(_,_))
 		  println (executions.size + " " + duration.size)
-		  executions.foreach(x => println(x.tasks(MAP).size + " " + x.tasks(REDUCE).size))
+		  executions.foreach(x => println(x.tasks(MapTask).size + " " + x.tasks(ReduceTask).size))
 		  Simulation (executions)
     }
 }

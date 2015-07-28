@@ -11,9 +11,9 @@ abstract case class Execution(name : String, tasks : Array[Record]) {
 
     def numTasks(taskType : TaskType) : Int = tasks.count(_.taskType == taskType);
 
-    def numMap : Int = numTasks(MAP);
+    def numMap : Int = numTasks(MapTask);
 
-    def numReduce : Int = numTasks(REDUCE);
+    def numReduce : Int = numTasks(ReduceTask);
 
     def duration : Long;
 

@@ -1,7 +1,7 @@
 package profiler.session
 
-import mapreduce.Bounds
-import mapreduce.Simulation
+import profiler.Bounds
+import profiler.Simulation
 
 /**
  * @author Alessandro

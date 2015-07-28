@@ -2,7 +2,9 @@ package profiler.session
 
 import scala.io.Source
 
-import mapreduce.Simulation
+import java.io.File
+
+import profiler.Simulation
 
 /**
  * @author Alessandro
@@ -42,7 +44,7 @@ object Thread {
 	val fields = text.split("\n").toSeq;
 	processFilename(filename) match {
 	case List(user, query, queue, id) => {
-	    val profile = Simulation.fromDir(profileDir + "/" + query + "/");
+	    val profile = Simulation.fromDir (new File (profileDir, query));
 	    Thread(user, query, queue, id, fields.map(Run(_)), profile);
 	}
 	}

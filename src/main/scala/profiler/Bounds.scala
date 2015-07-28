@@ -45,9 +45,11 @@ case class Bounds(simulation : Simulation, numCores : Int) {
 
     def numReduce = simulation.numOf(REDUCE);
 
-    def upperBound = (avgMap * numMap - 2 * maxMap) / mapSlots + ((avgReduce + avgShuffle) * numReduce - 2 * (maxReduce+maxShuffle)) / reduceSlots + 2*(maxMap + maxReduce + maxShuffle);
+    def upperBound = (avgMap * numMap - 2 * maxMap) / mapSlots +
+      ((avgReduce + avgShuffle) * numReduce - 2 * (maxReduce + maxShuffle)) / reduceSlots +
+      2 * (maxMap + maxReduce + maxShuffle);
 
-    def lowerBound = (avgMap * numMap + (avgReduce + avgShuffle) * numReduce) / slots;// - avgShuffle;
+    def lowerBound = (avgMap * numMap + (avgReduce + avgShuffle) * numReduce) / slots;
 
     def avg = (upperBound + lowerBound) / 2;
 

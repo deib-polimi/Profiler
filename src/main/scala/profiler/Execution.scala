@@ -15,11 +15,7 @@ abstract case class Execution(name : String, tasks : Array[Record]) {
 
     def numReduce : Int = numTasks(REDUCE);
 
-    //private def start : Long = tasks.map(_.startMSec).reduce( (x,y) => Math.min(x, y));
-
-    //private def stop : Long = tasks.map(_.stopMSec).reduce( (x,y) => Math.max(x, y));
-
-    def duration : Long;// = stop - start;
+    def duration : Long;
 
     def locations : Set[String] = tasks.map(_.location).toSet;
 
@@ -35,12 +31,7 @@ abstract case class Execution(name : String, tasks : Array[Record]) {
 
 object Execution {
 
-    /*def apply(text : String) : Execution = {
-    val lines = text.split("\n");
-    Execution(lines.map(Record(_)));
-  }*/
-
-    def apply(text : String, duration : Duration, shuffle : Shuffle) : Execution = {
+    def apply (text : String, duration : Duration, shuffle : Shuffle) : Execution = {
 	    val lines = text.split("\n");
 	    new ExternalExecution(lines.head, duration, shuffle(lines.map(Record(_))));
     }

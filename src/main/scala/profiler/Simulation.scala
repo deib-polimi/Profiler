@@ -6,6 +6,8 @@ package profiler
 import scala.Range
 import scala.io.Source
 
+import java.io.File
+
 /**
  * @author Alessandro
  *
@@ -47,53 +49,47 @@ case class Simulation(executions : Array[Execution]) {
     }
 
     def range(min : Int, max : Int) : Simulation = {
-	val slice = for(i <- Range(min, max) ) yield executions(i);
-		Simulation(slice.toArray);
+	val slice = for(i <- Range(min, max) ) yield executions(i)
+		Simulation (slice.toArray)
     }
 
-    def numOf(taskType : TaskType) = {
-	val num = executions.map(_.numTasks(taskType)).toSet;
-	//if(num.size != 1) throw new Exception("Wrong argument");
-	//else num.head;
-	num.reduce(Math.max(_, _));
-	//num.reduce(_ + _)/num.size;
+    def numOf (taskType : TaskType): Int = {
+	val num = executions.map(_.numTasks(taskType)).toSet
+		num.reduce(Math.max(_, _))
     }
 
-    def validate(bounds : Bounds) =
-	    executions.map(x => bounds.error(x.duration)*100).sortBy(x => x);
+    def validate(bounds : Bounds) = executions.map(x => bounds.error(x.duration)*100).sortBy(x => x)
 
-    def validateMore(bounds : Bounds) =
-	    executions.map(x => (bounds.error(x.duration)*100, x.locations.size) ).sortBy(x => x._1);
+	    def validateMore(bounds : Bounds) =
+	    executions.map(x => (bounds.error(x.duration)*100, x.locations.size) ).sortBy(x => x._1)
 
-    def over(bounds : Bounds) : Int = executions.count(_.duration > bounds.upperBound);
+	    def over (bounds : Bounds) : Int = executions.count(_.duration > bounds.upperBound)
 
-    def under(bounds : Bounds) : Int = executions.count(_.duration < bounds.lowerBound);
+	    def under (bounds : Bounds) : Int = executions.count(_.duration < bounds.lowerBound)
 
-    def size : Int = executions.size;
+	    def size : Int = executions.size
 
 }
 
 object Simulation {
 
-    def fromDir(dir : String) : Simulation = {
-	    val durations = Duration(Source.fromFile(dir + "/data/appDuration.txt").mkString);
-	    val lines = Source.fromFile(dir + "/data/taskDurationLO.txt").mkString;
-	    val shuffle = Shuffle(Source.fromFile(dir + "/data/shuffleDurationLO.txt").mkString);
-	    Simulation(lines, durations, shuffle);
+    def fromDir (dir : File) : Simulation = {
+	    val dataDir = new File (dir, "data")
+	    val durations = Duration (Source.fromFile (new File (dataDir,
+		    "appDuration.txt")).mkString)
+		  val lines = Source.fromFile (new File (dataDir,
+			  "taskDurationLO.txt")).mkString
+			val shuffle = Shuffle (Source.fromFile (new File (dataDir,
+				"shuffleDurationLO.txt")).mkString)
+		  Simulation (lines, durations, shuffle)
     }
 
-    /*def apply(text : String) : Simulation = {
-    val executions = text.split("\n\n");
-    Simulation(executions.map(Execution(_)));
-  }*/
-
-    def apply(text : String, duration : Duration, shuffle : Shuffle) : Simulation = {
+    def apply (text : String, duration : Duration, shuffle : Shuffle) : Simulation = {
 	    val executions = text.split("\n\n").map(Execution(_, duration, shuffle)).
-		    filter(x => duration.contains(x.tasks.head.name));
-	    val numTask = executions.map(_.tasks.size).reduce(Math.max(_,_));
-	    println(executions.size + " " + duration.size)
-	    executions.foreach(x => println(x.tasks(MAP).size + " " + x.tasks(REDUCE).size));
-	    //executions.filterNot {_.tasks.size == numTask}.foreach(x => println("A: " + x.name + " " + x.tasks.size));
-	    Simulation(executions)//.filter(_.tasks.size == numTask));
+		    filter(x => duration.contains(x.tasks.head.name))
+		  val numTask = executions.map(_.tasks.size).reduce(Math.max(_,_))
+		  println (executions.size + " " + duration.size)
+		  executions.foreach(x => println(x.tasks(MAP).size + " " + x.tasks(REDUCE).size))
+		  Simulation (executions)
     }
 }

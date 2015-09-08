@@ -5,4 +5,4 @@ package profiler.session
  */
 class Queues {
 
-}
+};

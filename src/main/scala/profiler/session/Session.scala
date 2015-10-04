@@ -36,20 +36,18 @@ object Session {
 			Session(threads);
 	};
 
-	def main(args: Array[String]): Unit = {
-			val nCores = 240;
-			val s = Session("/home/alessandro/sessioni/5_5_6_600"+"/fetched/session", "/workspace/Query/");
-			val deadline = 600;
-			val qm = QueueManager(s, "queue1" -> 38.01, "queue2" ->1.94, "queue3" -> 60.05, "queue4" -> 0);
+  def mainEntryPoint (inputDir : String, profilesDir : String, nCores : Int,
+                      deadline : Int, queues : (String, Double)*) : Unit = {
+      val session = Session(inputDir, profilesDir);
+      val manager = QueueManager(session, queues:_*);
 
-			qm.queues.foreach(x => println(x._2.users));
-			println("Average:");
-			s.validate(qm, nCores).foreach(x => println(x));
-			println("Upper:");
-			s.validateUpper(qm, nCores).foreach(x => println(x));
-			println("Deadline:");
-			s.validateWith(deadline).foreach(x => println(x));
-
-	};
+      manager.queues.foreach(x => println(x._2.users));
+      println("Average:");
+      session.validate(manager, nCores).foreach(x => println(x));
+      println("Upper:");
+      session.validateUpper(manager, nCores).foreach(x => println(x));
+      println("Deadline:");
+      session.validateWith(deadline).foreach(x => println(x));
+  }
 
 };

@@ -50,11 +50,4 @@ object Thread {
 			}
 	}
 
-	def main(args: Array[String]): Unit = {
-			val source = Source.fromFile("/workspace/fetched/session/ubuntu_R1_default_uFex2.txt").mkString;
-			val t = Thread(source, "ubuntu_R1_default_uFex2.txt", "/workspace/CCSEP/250/script-fabio/fetched/");
-			t.executions.foreach(x => println(x));
-			println(t.avg);
-	}
-
 };

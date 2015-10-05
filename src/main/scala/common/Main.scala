@@ -48,8 +48,8 @@ object Main {
 
 	    try {
 		    val options = nextArgument (Map (), args)
-			  val inputDir = options ('input)
-			  val profilesDir = options ('profiles)
+			  val inputDir = new File (options ('input))
+			  val profilesDir = new File (options ('profiles))
 			  val nCores = options ('cores).toInt
 			  val deadline = options ('deadline).toInt
 			  val queues = for (entry <- options ('queues) split ",") yield {

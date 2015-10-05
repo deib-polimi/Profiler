@@ -40,14 +40,14 @@ object Thread {
 			name.split("_").toList;
 	}
 
-	def apply(text : String, filename : String, profileDir : String) : Thread = {
+	def apply (text : String, filename : String, profileDir : File) : Thread = {
 			val fields = text.split("\n").toSeq;
 			processFilename (filename) match {
-			case List(user, query, queue, id) => {
+			case List (user, query, queue, id) => {
 				val profile = Simulation.fromDir (new File (profileDir, query));
 				Thread(user, query, queue, id, fields.map(Run(_)), profile);
 			}
-			}
+		}
 	}
 
 };

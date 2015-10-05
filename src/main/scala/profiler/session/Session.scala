@@ -30,16 +30,16 @@ object Session {
 			println(parts);
 	};
 
-	def apply(dir : String, profileDir : String) : Session =  {
-			val files = new File(dir).listFiles().toList;
-			val threads = files.map(x => Thread(Source.fromFile(x).mkString, x.getName, profileDir));
+	def apply (dir : File, profileDir : File) : Session =  {
+			val files = dir.listFiles ().toList;
+			val threads = files.map (x => Thread (Source.fromFile (x).mkString, x.getName, profileDir));
 			Session(threads);
 	};
 
-  def mainEntryPoint (inputDir : String, profilesDir : String, nCores : Int,
+  def mainEntryPoint (inputDir : File, profilesDir : File, nCores : Int,
                       deadline : Int, queues : (String, Double)*) : Unit = {
-      val session = Session(inputDir, profilesDir);
-      val manager = QueueManager(session, queues:_*);
+      val session = Session (inputDir, profilesDir);
+      val manager = QueueManager (session, queues:_*);
 
       manager.queues.foreach(x => println(x._2.users));
       println("Average:");

@@ -28,7 +28,6 @@ object Loader {
   def mainEntryPoint (nCores : Int, inputDirectory : File) : Unit = {
       val sim = Simulation.fromDir(inputDirectory);
 
-      println ("Number of executions: " + sim.size);
       val validation = sim.kFold(2).map(x => validate(x._1, x._2, nCores));
 
       println("Number of cores: " + nCores);

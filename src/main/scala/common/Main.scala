@@ -27,7 +27,7 @@ object Main {
 
     private def loader (args: Iterator [String]): Unit = {
 	    try {
-		    val inputDirectory = new File (args.next)
+		    val inputDirectory = new File (args.next).getAbsoluteFile
 			  val nCores = args.next.toInt
 			  Loader.mainEntryPoint (nCores, inputDirectory)
 	    } catch {
@@ -48,8 +48,8 @@ object Main {
 
 	    try {
 		    val options = nextArgument (Map (), args)
-			  val inputDir = new File (options ('input))
-			  val profilesDir = new File (options ('profiles))
+			  val inputDir = new File (options ('input)).getAbsoluteFile
+			  val profilesDir = new File (options ('profiles)).getAbsoluteFile
 			  val nCores = options ('cores).toInt
 			  val deadline = options ('deadline).toInt
 			  val queues = for (entry <- options ('queues) split ",") yield {

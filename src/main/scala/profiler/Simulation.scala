@@ -88,8 +88,8 @@ object Simulation {
 			val executions = text.split("\n\n").map(Execution(_, duration, shuffle)).
 					filter(x => duration.contains(x.tasks.head.name));
 			val numTask = executions.map(_.tasks.size).reduce(Math.max(_,_));
-			println (executions.size + " " + duration.size);
-			executions.foreach(x => println(x.tasks(MapTask).size + " " + x.tasks(ReduceTask).size));
+			executions.foreach(x => println ("Map tasks: " + x.tasks (MapTask).size +
+          " Reduce tasks: " + x.tasks (ReduceTask).size));
 			Simulation (executions);
 	};
 };

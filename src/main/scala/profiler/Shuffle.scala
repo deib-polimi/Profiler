@@ -4,7 +4,6 @@ package profiler
  * @author Alessandro
  */
 case class Shuffle(shuffles : Map[String, Record]) {
-	println("SHUFFLE!");
 
 	def apply (data : Array[Record]) : Array[Record] = {
 			val maps = data.filter(_.taskType == MapTask);

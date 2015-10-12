@@ -53,12 +53,14 @@ object Loader {
   
   def listRuns (nCores : Int, inputDirectory : File): Unit = {
     val simulation = Simulation fromDir inputDirectory
-    println ("nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,nCores")
+    println ("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,nCores")
     simulation.executions foreach { printData (_, nCores) }
   }
   
   private def printData (execution: Execution, numCores : Int): Unit = {
     val builder = new StringBuilder
+    builder append execution.duration
+    builder append ','
     builder append {execution numTasks MapTask}
     builder append ','
     builder append {execution numTasks ReduceTask}

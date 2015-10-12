@@ -11,13 +11,7 @@ import java.io.File
  */
 object Loader {
 
-	def min(input : Seq[Int]) : Int = input.reduce((x,y) => Math.min(x,y));
-
-	def max(input : Seq[Int]) : Int = input.reduce((x,y) => Math.max(x,y));
-
-	def avg(input : Seq[Double]) : Double = {
-			input.reduce((x,y) => x+y)/input.size;
-	};
+	def avg(input : Seq[Double]) : Double = input.reduce((x,y) => x+y)/input.size;
 
 	def validate(s2 : Simulation, s1 : Simulation, nCores : Int): Double = {
 			val b = Bounds(s1, nCores);

@@ -16,13 +16,13 @@ case class Simulation(executions : Array[Execution]) {
 
 	private def sum(l : Array[Long]) : Long = l.reduce( (x,y) => x + y);
 
-	def avg : Long = executions.map(_.duration).reduce( (x,y) => x + y) / executions.length;
-
 	def avg(taskType : TaskType) : Long = sum(executions.map(_.sum(taskType))) / sum(executions.map(_.numTasks(taskType).toLong));
 
 	def max(taskType : TaskType) : Long = executions.map(_.max(taskType)).reduce( (x,y) => Math.max(x,y));
 
 	def min(taskType : TaskType) : Long = executions.map(_.min(taskType)).reduce( (x,y) => Math.min(x,y));
+
+	def avg : Long = sum (executions map (_.duration)) / executions.length;
 
 	def max : Long = executions.map(_.duration).reduce((x,y) => Math.max(x,y));
 

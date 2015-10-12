@@ -16,7 +16,7 @@ object Main {
 			stripMargin;
 	private final val WRONG_INPUT_ARGUMENTS = "error: unrecognized input arguments"
 	private final val NUMBER_FORMAT = "error: invalid number format"
-	private final val MISSING_ARGUMENTS = "error: missing input arguments"
+	private final val MISSING_TASKS = "error: some tasks are not available"
 
 	def main (args : Array [String]) : Unit = {
 		if (args.length == 0) Console.err.println (USAGE)
@@ -39,6 +39,7 @@ object Main {
 				Loader.performProfiling (nCores, inputDirectory)
 			} catch {
 			  case nfe: NumberFormatException => Console.err.println (NUMBER_FORMAT)
+			  case nsee : NoSuchElementException => Console.err.println (MISSING_TASKS)
 			}
 	}
 	
@@ -48,6 +49,7 @@ object Main {
 	    Loader.listRuns (nCores, inputDirectory)
 	  } catch {
 	    case nfe: NumberFormatException => Console.err.println (NUMBER_FORMAT)
+	    case nsee : NoSuchElementException => Console.err.println (MISSING_TASKS)
 	  }
 	}
 	
@@ -80,7 +82,7 @@ object Main {
 				}
 				Session.mainEntryPoint (inputDir, profilesDir, nCores, deadline, queues:_*)
 			} catch {
-			  case nsee : NoSuchElementException => Console.err.println (MISSING_ARGUMENTS)
+			  case nsee : NoSuchElementException => Console.err.println (MISSING_TASKS)
 			  case nfe : NumberFormatException => Console.err.println (NUMBER_FORMAT)
 			  case re : RuntimeException => {
 				  Console.err.println (WRONG_INPUT_ARGUMENTS)

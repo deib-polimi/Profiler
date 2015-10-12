@@ -9,12 +9,11 @@ import profiler.session.Session
  * @author eugenio
  */
 object Main {
-	private final val USAGE = """
-			usage:
-			Profiler -p|--single-class directory cores
-      Profiler -l|--list-runs directory cores
-			Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory cores
-			""";
+	private final val USAGE = """usage:
+			|  Profiler -p|--single-class directory cores
+      |  Profiler -l|--list-runs directory cores
+			|  Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory cores""".
+			stripMargin;
 	private final val WRONG_INPUT_ARGUMENTS = "error: unrecognized input arguments"
 	private final val NUMBER_FORMAT = "error: invalid number format"
 	private final val MISSING_ARGUMENTS = "error: missing input arguments"

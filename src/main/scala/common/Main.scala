@@ -12,6 +12,7 @@ object Main {
 	private final val USAGE = """
 			usage:
 			Profiler -p|--single-class directory cores
+      Profiler -l|--list-runs directory cores
 			Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory cores
 			""";
 	private final val WRONG_INPUT_ARGUMENTS = "error: unrecognized input arguments"
@@ -24,22 +25,37 @@ object Main {
 	}
 
 	private def processArguments (args : List [String]) : Unit = args.head match {
-	  case "-p" | "--single-class" => loader (args.tail.toIterator)
+	  case "-p" | "--single-class" => profiler (args.tail.toIterator)
 	  case "-s" | "--session" => session (args.tail)
+	  case "-l" | "--list-runs" => list (args.tail.toIterator)
 	  case _ => {
 		  Console.err.println (WRONG_INPUT_ARGUMENTS);
 		  Console.err.println (USAGE);
 	  }
 	}
 
-	private def loader (args: Iterator [String]): Unit = {
+	private def profiler (args: Iterator [String]): Unit = {
 			try {
-				val inputDirectory = new File (args.next).getAbsoluteFile
-				val nCores = args.next.toInt
-				Loader.mainEntryPoint (nCores, inputDirectory)
+			  val (inputDirectory, nCores) = parseArgumentsForLoader (args)
+				Loader.performProfiling (nCores, inputDirectory)
 			} catch {
 			  case nfe: NumberFormatException => Console.err.println (NUMBER_FORMAT)
 			}
+	}
+	
+	private def list (args: Iterator [String]): Unit = {
+	  try {
+	    val (inputDirectory, nCores) = parseArgumentsForLoader (args)
+	    Loader.listRuns (nCores, inputDirectory)
+	  } catch {
+	    case nfe: NumberFormatException => Console.err.println (NUMBER_FORMAT)
+	  }
+	}
+	
+	private def parseArgumentsForLoader (args: Iterator [String]): (File, Int) = {
+	  val inputDirectory = new File (args.next).getAbsoluteFile
+		val nCores = args.next.toInt
+		inputDirectory -> nCores
 	}
 
 	private def session (args: List [String]): Unit = {

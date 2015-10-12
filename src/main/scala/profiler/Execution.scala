@@ -26,6 +26,8 @@ abstract case class Execution(name : String, tasks : Array[Record]) {
 	def max(taskType : TaskType) : Long = tasks(taskType).map(_.durationMSec).reduce( (x,y) => Math.max(x,y) );
 
 	def min(taskType : TaskType) : Long = tasks(taskType).map(_.durationMSec).reduce( (x,y) => Math.min(x,y) );
+	
+	def avg(taskType : TaskType) : Long = sum(taskType) / numTasks(taskType);
 
 }
 

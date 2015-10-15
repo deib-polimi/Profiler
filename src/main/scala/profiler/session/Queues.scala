@@ -3,5 +3,4 @@ package profiler.session
 /**
  * @author alessandro
  */
-class Queues {
-};
+class Queues {}

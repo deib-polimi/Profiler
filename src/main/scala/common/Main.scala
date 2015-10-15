@@ -3,6 +3,7 @@ package common
 import java.io.File
 
 import profiler.Loader
+import profiler.session.Session
 
 /**
  * @author eugenio
@@ -29,10 +30,9 @@ object Main {
     case "-p" | "--single-class" => profiler (args.tail.toIterator)
     case "-s" | "--session" => session (args.tail)
     case "-l" | "--list-runs" => list (args.tail.toIterator)
-    case _ => {
-      Console.err.println (WRONG_INPUT_ARGUMENTS);
-      Console.err.println (USAGE);
-    }
+    case _ =>
+      Console.err.println (WRONG_INPUT_ARGUMENTS)
+      Console.err.println (USAGE)
   }
 
   private def profiler (args: Iterator [String]): Unit = {
@@ -56,8 +56,8 @@ object Main {
   }
 
   private def parseArgumentsForLoader (args: Iterator [String]): (File, Int) = {
-    val inputDirectory = new File (args.next).getAbsoluteFile
-    val nCores = args.next.toInt
+    val inputDirectory = new File (args.next()).getAbsoluteFile
+    val nCores = args.next().toInt
     inputDirectory -> nCores
   }
 
@@ -80,16 +80,15 @@ object Main {
       val deadline = options ('deadline).toInt
       val queues = for (entry <- options ('queues) split ",") yield {
         val pieces = entry split "="
-        (pieces(0) -> pieces (1).toDouble)
+        pieces(0) -> pieces (1).toDouble
       }
       Session.mainEntryPoint (inputDir, profilesDir, nCores, deadline, queues:_*)
     } catch {
       case nsee : NoSuchElementException => Console.err.println (MISSING_TASKS)
       case nfe : NumberFormatException => Console.err.println (NUMBER_FORMAT)
-      case re : RuntimeException => {
+      case re : RuntimeException =>
         Console.err.println (WRONG_INPUT_ARGUMENTS)
         Console.err.println (USAGE)
-      }
     }
   }
 }

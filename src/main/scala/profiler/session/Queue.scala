@@ -5,8 +5,8 @@ package profiler.session
  */
 case class Queue(name : String, ratio : Double, nMap : Long, nReduce : Long, users : Int) {
 
-	def mapRatio = nMap.toDouble / (nMap + nReduce);
+  def mapRatio = nMap.toDouble / (nMap + nReduce);
 
-	def reduceRatio = nReduce.toDouble / (nMap + nReduce);
+  def reduceRatio = nReduce.toDouble / (nMap + nReduce);
 
 };

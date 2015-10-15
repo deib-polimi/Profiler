@@ -12,14 +12,14 @@ case class Run(name : String, start : Long, duration : Long) {
 
 object Run{
 
-	private def parseData(input : String) =
-			new SimpleDateFormat("d HH:mm:ss.SSS", Locale.ENGLISH).parse(input).getTime;
+  private def parseData(input : String) =
+    new SimpleDateFormat("d HH:mm:ss.SSS", Locale.ENGLISH).parse(input).getTime;
 
-	def apply(text : String) : Run = {
-			val fields = text.split(",").map(x => x.trim()).toList;
-			val start = parseData(fields(1));
-			val stop = parseData(fields(2));
-			Run(fields(0), start, stop-start);
-	};
+  def apply(text : String) : Run = {
+    val fields = text.split(",").map(x => x.trim()).toList;
+    val start = parseData(fields(1));
+    val stop = parseData(fields(2));
+    Run(fields(0), start, stop-start);
+  };
 
 };

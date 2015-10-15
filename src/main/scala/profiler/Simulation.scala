@@ -42,7 +42,7 @@ case class Simulation(executions : Array[Execution]) {
 
   private def setRange(start : Int, size : Int) : (Simulation, Simulation) = {
     val all = executions.indices
-    val isInWantedRange = Range(start, start + size) contains _
+    val isInWantedRange : (Int) => Boolean = Range(start, start + size).contains
     val selected = all filter isInWantedRange
     val unselected = all filterNot isInWantedRange
     (filter(selected), filter(unselected))

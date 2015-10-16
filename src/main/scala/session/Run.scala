@@ -1,4 +1,4 @@
-package profiler.session
+package session
 
 import java.text.SimpleDateFormat
 import java.util.Locale

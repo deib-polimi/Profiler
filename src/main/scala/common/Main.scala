@@ -3,7 +3,7 @@ package common
 import java.io.File
 
 import profiler.Loader
-import profiler.session.Session
+import session.Session
 
 /**
  * @author eugenio

@@ -1,4 +1,4 @@
-package profiler.session
+package session
 
 import profiler.{Bounds, Simulation}
 

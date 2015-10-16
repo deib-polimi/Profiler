@@ -75,17 +75,15 @@ object Simulation {
 
   def fromDir (dir : File) : Simulation = {
     val dataDir = new File (dir, "data")
-    val durations = Duration (Source.fromFile (new File (dataDir,
-      "appDuration.txt")).mkString)
-    val lines = Source.fromFile (new File (dataDir,
-      "taskDurationLO.txt")).mkString
-    val shuffle = Shuffle (Source.fromFile (new File (dataDir,
-      "shuffleDurationLO.txt")).mkString)
-    Simulation (lines, durations, shuffle)
+    val durations = Duration (Source.fromFile (new File (dataDir, "appDuration.txt")).mkString)
+    val lines = Source.fromFile (new File (dataDir, "taskDurationLO.txt")).mkString
+    val shuffle = Shuffle (Source.fromFile (new File (dataDir, "shuffleDurationLO.txt")).mkString)
+    val vertices = Vertices(Source.fromFile(new File(dataDir, "vertexLTask.txt")).mkString)
+    Simulation (lines, durations, shuffle, vertices)
   }
 
-  def apply (text : String, duration : Duration, shuffle : Shuffle) : Simulation = {
-    val executions = text.split("\n\n").map(Execution(_, duration, shuffle)).
+  def apply (text : String, duration : Duration, shuffle : Shuffle, vertices : Vertices) : Simulation = {
+    val executions = text.split("\n\n").map(Execution(_, duration, shuffle, vertices)).
       filter(x => duration.contains(x.tasks.head.name))
     executions.foreach (x => Console.err.println ("Map tasks: " + x.tasks (MapTask).length +
       " Reduce tasks: " + x.tasks (ReduceTask).length))

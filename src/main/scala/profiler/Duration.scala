@@ -9,11 +9,11 @@ package profiler
  */
 case class Duration(durations : Map[String, Long]) {
 
-  val size = durations.head._1.length
+  def get(input : String) = durations get parseIdentifier(input)
 
-  def get(input : String) = durations(input.slice(8, 8+size))
+  def contains(input : String) = durations contains parseIdentifier(input)
 
-  def contains(input : String) = durations.contains(input.slice(8, 8+size))
+  private def parseIdentifier(name : String) = {name split "_"}.tail mkString "_"
 
 }
 
@@ -23,8 +23,8 @@ object Duration {
     def parseEntry (text : String) : Option[(String, Long)] = {
       val fields = text.split("\t")
       val duration = fields(0).toLong
-      if(duration < 0) None
-      else Some(fields(1).substring(12) -> duration)
+      if (duration < 0) None
+      else Some(fields(1).split("_").tail.mkString("_") -> duration)
     }
     val lines = text.split("\n")
     Duration(lines.flatMap(parseEntry).toMap)

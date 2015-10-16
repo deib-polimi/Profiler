@@ -18,6 +18,8 @@ case class Record (name : String, durationMSec : Long, startMSec : Long,
   def - (other : Record) = Record (name, durationMSec - other.durationMSec,
     startMSec, stopMSec, taskType, location)
 
+  def changeType(newType : TaskType) = Record(name, durationMSec, startMSec, stopMSec, newType, location)
+
 }
 
 object Record {

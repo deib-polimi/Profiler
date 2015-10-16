@@ -73,7 +73,7 @@ case class Simulation(executions : Array[Execution]) {
 
 object Simulation {
 
-  val NOT_IMPLEMENTED_DISCLAIMER = "warning: Profile cannot profile complex DAGs"
+  val NOT_IMPLEMENTED_DISCLAIMER = "warning: Profiler cannot profile complex DAGs"
 
   def fromDir (dir : File) : Simulation = {
     val dataDir = new File (dir, "data")

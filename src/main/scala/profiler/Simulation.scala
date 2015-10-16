@@ -73,12 +73,15 @@ case class Simulation(executions : Array[Execution]) {
 
 object Simulation {
 
+  val NOT_IMPLEMENTED_DISCLAIMER = "warning: Profile cannot profile complex DAGs"
+
   def fromDir (dir : File) : Simulation = {
     val dataDir = new File (dir, "data")
     val durations = Duration (Source.fromFile (new File (dataDir, "appDuration.txt")).mkString)
     val lines = Source.fromFile (new File (dataDir, "taskDurationLO.txt")).mkString
     val shuffle = Shuffle (Source.fromFile (new File (dataDir, "shuffleDurationLO.txt")).mkString)
     val vertices = Vertices(Source.fromFile(new File(dataDir, "vertexLTask.txt")).mkString)
+    if (vertices.isNonTrivialDag) Console.err println NOT_IMPLEMENTED_DISCLAIMER
     Simulation (lines, durations, shuffle, vertices)
   }
 

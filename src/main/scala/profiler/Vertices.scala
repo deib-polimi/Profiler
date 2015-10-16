@@ -25,6 +25,8 @@ case class Vertices(assignments : Map[String, String]) {
     record changeType taskType
   }
 
+  val isNonTrivialDag = {assignments.values.toList.distinct lengthCompare 2} > 0
+
 }
 
 object Vertices {

@@ -29,13 +29,29 @@ abstract case class Execution(name : String, tasks : Array[Record]) {
 
   def avg(taskType : TaskType) : Long = sum(taskType) / numTasks(taskType)
 
+  def numTasks(vertex : String) : Long
+
+  def tasks(vertex : String) : Array[Record]
+
+  def sum(vertex : String) : Long
+
+  def max(vertex : String) : Long
+
+  def min(vertex : String) : Long
+
+  def avg(vertex : String) : Long
+
+  val vertices : List[String]
+
+  val isNonTrivialDag : Boolean
+
 }
 
 object Execution {
 
   def apply (text : String, duration : Duration, shuffle : Shuffle, vertices : Vertices) : Execution = {
-    val lines = text.split("\n")
-    new ExternalExecution(lines.head, duration, shuffle(vertices(lines map Record.apply)))
+    val lines = text split "\n"
+    new ExternalExecution(lines.head, duration, shuffle(vertices(lines map Record.apply)), vertices)
   }
 
 }

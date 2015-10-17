@@ -20,35 +20,56 @@ object Loader {
   }
 
   def performProfiling (nCores : Int, inputDirectory : File): Unit = {
-    val sim = Simulation.fromDir(inputDirectory)
+    val simulation = Simulation fromDir inputDirectory
+    if (simulation.isNonTrivialDag) dagOutput(simulation, nCores)
+    else mapReduceOutput(simulation,  nCores)
+  }
 
-    val validation = sim.kFold(2).map(x => validate(x._1, x._2, nCores))
+  private def mapReduceOutput(simulation: Simulation, nCores: Int): Unit = {
+    val validation = simulation.kFold(2).map(x => validate(x._1, x._2, nCores))
 
     println("Number of cores: " + nCores)
-    println("Number of jobs: " + sim.executions.length)
+    println("Number of jobs: " + simulation.size)
     println("Average error: " + avg(validation)+"%")
 
-    println("Min MAP: " + sim.min(MapTask))
-    println("Avg MAP: " + sim.avg(MapTask))
-    println("Max MAP: " + sim.max(MapTask))
-    println("Min REDUCE: " + sim.min(ReduceTask))
-    println("Avg REDUCE: " + sim.avg(ReduceTask))
-    println("Max REDUCE: " + sim.max(ReduceTask))
-    println("Min SHUFFLE: " + sim.min(ShuffleTask))
-    println("Avg SHUFFLE: " + sim.avg(ShuffleTask))
-    println("Max SHUFFLE: " + sim.max(ShuffleTask))
+    println("Min MAP: " + simulation.min(MapTask))
+    println("Avg MAP: " + simulation.avg(MapTask))
+    println("Max MAP: " + simulation.max(MapTask))
+    println("Min REDUCE: " + simulation.min(ReduceTask))
+    println("Avg REDUCE: " + simulation.avg(ReduceTask))
+    println("Max REDUCE: " + simulation.max(ReduceTask))
+    println("Min SHUFFLE: " + simulation.min(ShuffleTask))
+    println("Avg SHUFFLE: " + simulation.avg(ShuffleTask))
+    println("Max SHUFFLE: " + simulation.max(ShuffleTask))
 
-    println("MAP tasks: " + sim.numOf(MapTask))
-    println("REDUCE tasks: " + sim.numOf(ReduceTask))
+    println("MAP tasks: " + simulation.numOf(MapTask))
+    println("REDUCE tasks: " + simulation.numOf(ReduceTask))
 
-    println("Min completion time: " + sim.min)
-    println("Avg completion time: " + sim.avg)
-    println("Max completion time: " + sim.max)
+    println("Min completion time: " + simulation.min)
+    println("Avg completion time: " + simulation.avg)
+    println("Max completion time: " + simulation.max)
 
-    val bounds = Bounds(sim, nCores)
+    val bounds = Bounds(simulation, nCores)
     println("Low bound: " + bounds.lowerBound)
     println("Avg bound: " + bounds.avg)
     println("Upp bound: " + bounds.upperBound)
+  }
+
+  private def dagOutput(simulation: Simulation, nCores: Int): Unit = {
+    println("Number of cores: " + nCores)
+    println("Number of jobs: " + simulation.size)
+
+    simulation.vertices foreach {
+      vertex =>
+        println(s"Min $vertex: " + simulation.min(vertex))
+        println(s"Avg $vertex: " + simulation.avg(vertex))
+        println(s"Max $vertex: " + simulation.max(vertex))
+        println(s"$vertex tasks: " + simulation.numOf(vertex))
+    }
+
+    println("Min completion time: " + simulation.min)
+    println("Avg completion time: " + simulation.avg)
+    println("Max completion time: " + simulation.max)
   }
 
   def listRuns (nCores : Int, inputDirectory : File): Unit = {

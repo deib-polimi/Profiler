@@ -19,6 +19,12 @@ case class Simulation(executions : Array[Execution]) {
 
   def min(taskType : TaskType) : Long = executions.map(_.min(taskType)).min
 
+  def avg(vertex : String) : Long = executions.map(_.sum(vertex)).sum / executions.map(_.numTasks(vertex)).sum
+
+  def max(vertex : String) : Long = executions.map(_.max(vertex)).max
+
+  def min(vertex : String) : Long = executions.map(_.min(vertex)).min
+
   def avg : Long = executions.map(_.duration).sum / executions.length
 
   def max : Long = executions.map(_.duration).max
@@ -56,6 +62,11 @@ case class Simulation(executions : Array[Execution]) {
     num.max
   }
 
+  def numOf (vertex : String): Long = {
+    val num = executions.map(_.numTasks(vertex)).toSet
+    num.max
+  }
+
   def validate(bounds : Bounds) = executions.map(x => bounds.error(x.duration)*100).sortBy(x => x)
 
   def validateMore(bounds : Bounds) =
@@ -66,6 +77,10 @@ case class Simulation(executions : Array[Execution]) {
   def under (bounds : Bounds) : Int = executions.count(_.duration < bounds.lowerBound)
 
   def size : Int = executions.length
+
+  val vertices = executions.flatMap(_.vertices).toList.distinct sortBy {_.split(" ").last.toInt}
+
+  val isNonTrivialDag = executions exists {_.isNonTrivialDag}
 
 }
 

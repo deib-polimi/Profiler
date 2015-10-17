@@ -37,8 +37,15 @@ object Main {
 
   private def profiler (args: Iterator [String]): Unit = {
     try {
-      val (inputDirectory, nCores) = parseArgumentsForLoader (args)
-      Loader.performProfiling (nCores, inputDirectory)
+      parseArgumentsForLoader(args) match {
+        case Some(tuple) =>
+          val nCores = tuple._2
+          val inputDirectory = tuple._1
+          Loader.performProfiling (nCores, inputDirectory)
+        case None =>
+          Console.err println WRONG_INPUT_ARGUMENTS
+          Console.err println USAGE
+      }
     } catch {
       case nfe: NumberFormatException => Console.err.println (NUMBER_FORMAT)
       case nsee : NoSuchElementException => Console.err.println (MISSING_TASKS)
@@ -47,18 +54,27 @@ object Main {
 
   private def list (args: Iterator [String]): Unit = {
     try {
-      val (inputDirectory, nCores) = parseArgumentsForLoader (args)
-      Loader.listRuns (nCores, inputDirectory)
+      parseArgumentsForLoader(args) match {
+        case Some(tuple) =>
+          val nCores = tuple._2
+          val inputDirectory = tuple._1
+          Loader.listRuns (nCores, inputDirectory)
+        case None =>
+          Console.err println WRONG_INPUT_ARGUMENTS
+          Console.err println USAGE
+      }
     } catch {
       case nfe: NumberFormatException => Console.err.println (NUMBER_FORMAT)
       case nsee : NoSuchElementException => Console.err.println (MISSING_TASKS)
     }
   }
 
-  private def parseArgumentsForLoader (args: Iterator [String]): (File, Int) = {
+  private def parseArgumentsForLoader (args: Iterator [String]): Option[(File, Int)] = try {
     val inputDirectory = new File (args.next()).getAbsoluteFile
     val nCores = args.next().toInt
-    inputDirectory -> nCores
+    Some(inputDirectory -> nCores)
+  } catch {
+    case nsee : NoSuchElementException => None
   }
 
   private def session (args: List [String]): Unit = {

@@ -13,15 +13,13 @@ import scala.io.Source
  */
 case class Simulation(executions : Array[Execution]) {
 
-  private def sum(l : Array[Long]) : Long = l.sum
-
-  def avg(taskType : TaskType) : Long = sum(executions.map(_.sum(taskType))) / sum(executions.map(_.numTasks(taskType).toLong))
+  def avg(taskType : TaskType) : Long = executions.map(_.sum(taskType)).sum / executions.map(_.numTasks(taskType).toLong).sum
 
   def max(taskType : TaskType) : Long = executions.map(_.max(taskType)).max
 
   def min(taskType : TaskType) : Long = executions.map(_.min(taskType)).min
 
-  def avg : Long = sum (executions map (_.duration)) / executions.length
+  def avg : Long = executions.map(_.duration).sum / executions.length
 
   def max : Long = executions.map(_.duration).max
 

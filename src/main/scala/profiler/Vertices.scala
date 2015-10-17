@@ -5,6 +5,8 @@ package profiler
  */
 case class Vertices(assignments : Map[String, String]) {
 
+  def apply(name : String) = assignments(parseIdentifier(name))
+
   def get(name : String) = assignments get parseIdentifier(name)
 
   def contains(name : String) = assignments contains parseIdentifier(name)
@@ -22,7 +24,8 @@ case class Vertices(assignments : Map[String, String]) {
 
   def apply(records : Array[Record]) : Array[Record] = for (record <- records) yield {
     val taskType = inferType(record.name)
-    record changeType taskType
+    val vertex = apply(record.name)
+    record.changeRecord(taskType, vertex)
   }
 
   val distinctVertices = assignments.values.toList.distinct

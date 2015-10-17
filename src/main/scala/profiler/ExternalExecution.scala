@@ -1,14 +1,14 @@
 package profiler
 
 class ExternalExecution(override val name : String, external : Duration,
-                        tasks : Array[Record], mVertices : Vertices)
+                        tasks : Array[Record])
   extends Execution(name, tasks) {
 
   override def duration = {external get tasks.head.name}.get
 
   override def tasks(vertex : String) = tasks filter {
-    mVertices get _.name match {
-      case Some(`vertex`) => true
+    _.vertex match {
+      case `vertex` => true
       case _ => false
     }
   }
@@ -23,8 +23,8 @@ class ExternalExecution(override val name : String, external : Duration,
 
   override def avg(vertex : String) = sum(vertex) / numTasks(vertex)
 
-  override val vertices = mVertices.distinctVertices
+  override val vertices = tasks.map(_.vertex).toList.distinct
 
-  override val isNonTrivialDag = mVertices.isNonTrivialDag
+  override val isNonTrivialDag = {vertices filterNot {_ startsWith "Shuffle"} lengthCompare 2} > 0
 
 }

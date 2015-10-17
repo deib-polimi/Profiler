@@ -51,7 +51,7 @@ object Execution {
 
   def apply (text : String, duration : Duration, shuffle : Shuffle, vertices : Vertices) : Execution = {
     val lines = text split "\n"
-    new ExternalExecution(lines.head, duration, shuffle(vertices(lines map Record.apply)), vertices)
+    new ExternalExecution(lines.head, duration, shuffle(vertices(lines map Record.apply)))
   }
 
 }

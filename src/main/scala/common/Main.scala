@@ -18,11 +18,9 @@ object Main {
       |""".stripMargin
 
   private final val WRONG_INPUT_ARGUMENTS = "error: unrecognized input arguments"
-  private final val NUMBER_FORMAT = "error: invalid number format"
-  private final val MISSING_TASKS = "error: some tasks are not available"
 
   def main (args : Array [String]) : Unit = {
-    if (args.length == 0) Console.err.println (USAGE)
+    if (args.length == 0) Console.err println USAGE
     else processArguments (args.toList)
   }
 
@@ -31,51 +29,40 @@ object Main {
     case "-s" | "--session" => session (args.tail)
     case "-l" | "--list-runs" => list (args.tail.toIterator)
     case _ =>
-      Console.err.println (WRONG_INPUT_ARGUMENTS)
-      Console.err.println (USAGE)
+      Console.err println WRONG_INPUT_ARGUMENTS
+      Console.err println USAGE
   }
 
-  private def profiler (args: Iterator [String]): Unit = {
-    try {
-      parseArgumentsForLoader(args) match {
-        case Some(tuple) =>
-          val nCores = tuple._2
-          val inputDirectory = tuple._1
-          Loader.performProfiling (nCores, inputDirectory)
-        case None =>
-          Console.err println WRONG_INPUT_ARGUMENTS
-          Console.err println USAGE
-      }
-    } catch {
-      case nfe: NumberFormatException => Console.err.println (NUMBER_FORMAT)
-      case nsee : NoSuchElementException => Console.err.println (MISSING_TASKS)
+  private def profiler (args: Iterator [String]): Unit =
+    parseArgumentsForLoader(args) match {
+      case Some(tuple) =>
+        val nCores = tuple._2
+        val inputDirectory = tuple._1
+        Loader.performProfiling (nCores, inputDirectory)
+      case None =>
+        Console.err println WRONG_INPUT_ARGUMENTS
+        Console.err println USAGE
     }
-  }
 
-  private def list (args: Iterator [String]): Unit = {
-    try {
-      parseArgumentsForLoader(args) match {
-        case Some(tuple) =>
-          val nCores = tuple._2
-          val inputDirectory = tuple._1
-          Loader.listRuns (nCores, inputDirectory)
-        case None =>
-          Console.err println WRONG_INPUT_ARGUMENTS
-          Console.err println USAGE
-      }
-    } catch {
-      case nfe: NumberFormatException => Console.err.println (NUMBER_FORMAT)
-      case nsee : NoSuchElementException => Console.err.println (MISSING_TASKS)
+  private def list (args: Iterator [String]): Unit =
+    parseArgumentsForLoader(args) match {
+      case Some(tuple) =>
+        val nCores = tuple._2
+        val inputDirectory = tuple._1
+        Loader.listRuns (nCores, inputDirectory)
+      case None =>
+        Console.err println WRONG_INPUT_ARGUMENTS
+        Console.err println USAGE
     }
-  }
 
-  private def parseArgumentsForLoader (args: Iterator [String]): Option[(File, Int)] = try {
-    val inputDirectory = new File (args.next()).getAbsoluteFile
-    val nCores = args.next().toInt
-    Some(inputDirectory -> nCores)
-  } catch {
-    case nsee : NoSuchElementException => None
-  }
+  private def parseArgumentsForLoader (args: Iterator [String]): Option[(File, Int)] =
+    try {
+      val inputDirectory = new File (args.next()).getAbsoluteFile
+      val nCores = args.next().toInt
+      Some(inputDirectory -> nCores)
+    } catch {
+      case nsee : NoSuchElementException => None
+    }
 
   private def session (args: List [String]): Unit = {
     type OptionMap = Map [Symbol, String]
@@ -100,11 +87,9 @@ object Main {
       }
       Session.mainEntryPoint (inputDir, profilesDir, nCores, deadline, queues:_*)
     } catch {
-      case nsee : NoSuchElementException => Console.err.println (MISSING_TASKS)
-      case nfe : NumberFormatException => Console.err.println (NUMBER_FORMAT)
       case re : RuntimeException =>
-        Console.err.println (WRONG_INPUT_ARGUMENTS)
-        Console.err.println (USAGE)
+        Console.err println WRONG_INPUT_ARGUMENTS
+        Console.err println USAGE
     }
   }
 }

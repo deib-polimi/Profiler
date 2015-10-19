@@ -28,10 +28,6 @@ case class Vertices(assignments : Map[String, String]) {
     record.changeRecord(taskType, vertex)
   }
 
-  val distinctVertices = assignments.values.toList.distinct
-
-  val isNonTrivialDag = {distinctVertices lengthCompare 2} > 0
-
 }
 
 object Vertices {

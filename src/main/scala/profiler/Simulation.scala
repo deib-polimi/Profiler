@@ -91,7 +91,7 @@ object Simulation {
     val durations = Duration (Source.fromFile (new File (dataDir, "appDuration.txt")).mkString)
     val lines = Source.fromFile (new File (dataDir, "taskDurationLO.txt")).mkString
     val shuffle = Shuffle (Source.fromFile (new File (dataDir, "shuffleDurationLO.txt")).mkString)
-    val vertices = Vertices(Source.fromFile(new File(dataDir, "vertexLTask.txt")).mkString)
+    val vertices = Vertices(Source.fromFile(new File(dataDir, "vertexLtask.txt")).mkString)
     Simulation (lines, durations, shuffle, vertices)
   }
 

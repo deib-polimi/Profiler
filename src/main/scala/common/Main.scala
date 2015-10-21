@@ -13,7 +13,7 @@ object Main {
   private final val USAGE =
     """usage:
       |  Profiler -p|--single-class directory cores
-      |  Profiler -l|--list-runs directory cores
+      |  Profiler -l|--list-runs directory cores dataset_size
       |  Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory cores
       |""".stripMargin
 
@@ -45,11 +45,8 @@ object Main {
     }
 
   private def list (args: Iterator [String]): Unit =
-    parseArgumentsForLoader(args) match {
-      case Some(tuple) =>
-        val nCores = tuple._2
-        val inputDirectory = tuple._1
-        Loader.listRuns (nCores, inputDirectory)
+    parseArgumentsForListing(args) match {
+      case Some((inputDirectory, nCores, dataSize)) => Loader.listRuns(nCores, inputDirectory, dataSize)
       case None =>
         Console.err println WRONG_INPUT_ARGUMENTS
         Console.err println USAGE
@@ -60,6 +57,16 @@ object Main {
       val inputDirectory = new File (args.next()).getAbsoluteFile
       val nCores = args.next().toInt
       Some(inputDirectory -> nCores)
+    } catch {
+      case nsee : NoSuchElementException => None
+    }
+
+  private def parseArgumentsForListing (args: Iterator [String]): Option[(File, Int, Int)] =
+    try {
+      val inputDirectory = new File (args.next()).getAbsoluteFile
+      val nCores = args.next().toInt
+      val dataSize = args.next().toInt
+      Some((inputDirectory, nCores, dataSize))
     } catch {
       case nsee : NoSuchElementException => None
     }

@@ -72,13 +72,13 @@ object Loader {
     println("Max completion time: " + simulation.max)
   }
 
-  def listRuns (nCores : Int, inputDirectory : File): Unit = {
+  def listRuns (nCores : Int, inputDirectory : File, dataSize : Int): Unit = {
     val simulation = Simulation fromDir inputDirectory
-    println ("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,nCores")
-    simulation.executions foreach { printData (_, nCores) }
+    println ("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,nCores,dataSize")
+    simulation.executions foreach { printData (_, nCores, dataSize) }
   }
 
-  private def printData (execution: Execution, numCores : Int): Unit = {
+  private def printData (execution: Execution, numCores : Int, dataSize : Int): Unit = {
     val builder = new StringBuilder
     builder append execution.duration
     builder append ','
@@ -99,6 +99,8 @@ object Loader {
     builder append {execution max ShuffleTask}
     builder append ','
     builder append numCores
+    builder append ','
+    builder append dataSize
     println (builder.toString())
   }
 }

@@ -24,17 +24,17 @@ object Main {
     else processArguments (args.toList)
   }
 
-  private def processArguments (args : List [String]) : Unit = args.head match {
-    case "-p" | "--single-class" => profiler (args.tail.toIterator)
+  private def processArguments (args : List[String]) : Unit = args.head match {
+    case "-p" | "--single-class" => profiler (args.tail)
     case "-s" | "--session" => session (args.tail)
-    case "-l" | "--list-runs" => list (args.tail.toIterator)
+    case "-l" | "--list-runs" => list (args.tail)
     case _ =>
       Console.err println WRONG_INPUT_ARGUMENTS
       Console.err println USAGE
   }
 
-  private def profiler (args: Iterator [String]): Unit =
-    parseArgumentsForLoader(args) match {
+  private def profiler (args: Iterable[String]): Unit =
+    parseArgumentsForProfiling(args) match {
       case Some(tuple) =>
         val nCores = tuple._2
         val inputDirectory = tuple._1
@@ -44,7 +44,7 @@ object Main {
         Console.err println USAGE
     }
 
-  private def list (args: Iterator [String]): Unit =
+  private def list (args: Iterable[String]): Unit =
     parseArgumentsForListing(args) match {
       case Some((inputDirectory, nCores, dataSize)) => Loader.listRuns(nCores, inputDirectory, dataSize)
       case None =>
@@ -52,20 +52,22 @@ object Main {
         Console.err println USAGE
     }
 
-  private def parseArgumentsForLoader (args: Iterator [String]): Option[(File, Int)] =
+  private def parseArgumentsForProfiling (args: Iterable[String]): Option[(File, Int)] =
     try {
-      val inputDirectory = new File (args.next()).getAbsoluteFile
-      val nCores = args.next().toInt
+      val iterator = args.iterator
+      val inputDirectory = new File (iterator.next()).getAbsoluteFile
+      val nCores = iterator.next().toInt
       Some(inputDirectory -> nCores)
     } catch {
       case nsee : NoSuchElementException => None
     }
 
-  private def parseArgumentsForListing (args: Iterator [String]): Option[(File, Int, Int)] =
+  private def parseArgumentsForListing (args: Iterable[String]): Option[(File, Int, Int)] =
     try {
-      val inputDirectory = new File (args.next()).getAbsoluteFile
-      val nCores = args.next().toInt
-      val dataSize = args.next().toInt
+      val iterator = args.iterator
+      val inputDirectory = new File (iterator.next()).getAbsoluteFile
+      val nCores = iterator.next().toInt
+      val dataSize = iterator.next().toInt
       Some((inputDirectory, nCores, dataSize))
     } catch {
       case nsee : NoSuchElementException => None

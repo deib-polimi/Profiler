@@ -33,6 +33,8 @@ case class Simulation(executions : Array[Execution]) {
 
   def all(taskType : TaskType) = executions.flatMap(_.tasks(taskType)).sortBy(_.durationMSec)
 
+  def all(vertex : String) = executions.flatMap(_.tasks(vertex))
+
   def kFold(subdivision : Int) = {
     val size = executions.length/subdivision
     val range = Range(0, executions.length, size)

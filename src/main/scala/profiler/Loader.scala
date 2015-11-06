@@ -104,4 +104,12 @@ object Loader {
     builder append numCores
     println (builder.toString())
   }
+
+  def listTaskDurations (inputDirectory : File): Unit = {
+    val simulation = Simulation fromDir inputDirectory
+    simulation.vertices foreach {vertex =>
+      println(s"$vertex:")
+      simulation all vertex foreach {task => println(task.durationMSec)}
+    }
+  }
 }

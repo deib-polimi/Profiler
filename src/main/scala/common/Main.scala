@@ -14,6 +14,7 @@ object Main {
     """usage:
       |  Profiler -p|--single-class directory cores
       |  Profiler -l|--list-runs directory cores dataset_size
+      |  Profiler -t|--list-tasks directory
       |  Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory cores
       |""".stripMargin
 
@@ -28,6 +29,7 @@ object Main {
     case "-p" | "--single-class" => profiler (args.tail)
     case "-s" | "--session" => session (args.tail)
     case "-l" | "--list-runs" => list (args.tail)
+    case "-t" | "--list-tasks" => tasks (args.tail)
     case _ =>
       Console.err println WRONG_INPUT_ARGUMENTS
       Console.err println USAGE
@@ -92,7 +94,7 @@ object Main {
       val deadline = options ('deadline).toInt
       val queues = for (entry <- options ('queues) split ",") yield {
         val pieces = entry split "="
-        pieces(0) -> pieces (1).toDouble
+        pieces(0) -> pieces(1).toDouble
       }
       Session.mainEntryPoint (inputDir, profilesDir, nCores, deadline, queues:_*)
     } catch {
@@ -100,5 +102,14 @@ object Main {
         Console.err println WRONG_INPUT_ARGUMENTS
         Console.err println USAGE
     }
+  }
+
+  private def tasks (args: List[String]): Unit = args match {
+    case dir :: Nil =>
+      val directory = new File(dir)
+      Loader listTaskDurations directory
+    case _ =>
+      Console.err println WRONG_INPUT_ARGUMENTS
+      Console.err println USAGE
   }
 }

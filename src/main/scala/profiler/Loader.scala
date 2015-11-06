@@ -74,7 +74,8 @@ object Loader {
 
   def listRuns (nCores : Int, inputDirectory : File, dataSize : Int): Unit = {
     val simulation = Simulation fromDir inputDirectory
-    println ("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,nCores,dataSize")
+    // The number of cores must be the last column for compatibility with hadoop-svm
+    println ("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,dataSize,nCores")
     simulation.executions foreach { printData (_, nCores, dataSize) }
   }
 
@@ -98,9 +99,9 @@ object Loader {
     builder append ','
     builder append {execution max ShuffleTask}
     builder append ','
-    builder append numCores
-    builder append ','
     builder append dataSize
+    builder append ','
+    builder append numCores
     println (builder.toString())
   }
 }

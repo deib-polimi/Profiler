@@ -9,13 +9,11 @@ import profiler.Simulation
  */
 case class Thread(user : String, query : String, queue : String, id : String, executions : Seq[Run], profile : Simulation) {
 
-  executions.foreach(x => println("RUN: " + query + " " + executions))
-
   def sequence = executions
 
   def avg : Long = sequence.map(_.duration).sum/sequence.size
 
-  def fullId = user + " " + query + " " + id
+  def fullId = s"$user $query $id"
 
   def validate(queueManager : QueueManager, numCores : Int): Double = {
     val bounds = new SessionBounds(queueManager.queue(queue), profile, numCores)

@@ -77,28 +77,27 @@ object Main {
 
   private def session (args: List [String]): Unit = {
     type OptionMap = Map [Symbol, String]
-    def nextArgument (map : OptionMap, args : List [String]) : OptionMap = args match {
-      case Nil => map
+    def nextArgument (map : OptionMap, args : List [String]) : Option[OptionMap] = args match {
+      case Nil => Some(map)
       case "-c" :: deadline :: tail => nextArgument (map + ('deadline -> deadline), tail)
       case "-d" :: directory :: tail => nextArgument (map + ('profiles -> directory), tail)
       case "-q" :: queues :: tail => nextArgument (map + ('queues -> queues), tail)
-      case directory :: cores :: Nil => map + ('input -> directory, 'cores -> cores)
-      case _ => throw new RuntimeException
+      case directory :: cores :: tail => nextArgument(map + ('input -> directory, 'cores -> cores), tail)
+      case _ => None
     }
 
-    try {
-      val options = nextArgument (Map (), args)
-      val inputDir = new File (options ('input)).getAbsoluteFile
-      val profilesDir = new File (options ('profiles)).getAbsoluteFile
-      val nCores = options ('cores).toInt
-      val deadline = options ('deadline).toInt
-      val queues = for (entry <- options ('queues) split ",") yield {
-        val pieces = entry split "="
-        pieces(0) -> pieces(1).toDouble
-      }
-      Session.mainEntryPoint (inputDir, profilesDir, nCores, deadline, queues:_*)
-    } catch {
-      case re : RuntimeException =>
+    nextArgument(Map(), args) match {
+      case Some(options) =>
+        val inputDir = new File (options('input)).getAbsoluteFile
+        val profilesDir = new File (options('profiles)).getAbsoluteFile
+        val nCores = options('cores).toInt
+        val deadline = options('deadline).toInt
+        val queues = for (entry <- options('queues) split ",") yield {
+          val pieces = entry split "="
+          pieces(0) -> pieces(1).toDouble
+        }
+        Session.mainEntryPoint (inputDir, profilesDir, nCores, deadline, queues:_*)
+      case None =>
         Console.err println WRONG_INPUT_ARGUMENTS
         Console.err println USAGE
     }
@@ -109,7 +108,5 @@ object Main {
       val directory = new File(dir)
       Loader listTaskDurations directory
     case _ =>
-      Console.err println WRONG_INPUT_ARGUMENTS
-      Console.err println USAGE
   }
 }

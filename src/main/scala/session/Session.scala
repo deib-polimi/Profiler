@@ -9,18 +9,23 @@ import scala.io.Source
  */
 case class Session(threads : List[Thread]) {
 
-  def avgByQuery : Map[String, Long] = threads groupBy {_.query} map {case (key, list) =>
-    val durations = list flatMap {_.sequence} map {_.duration}
-    key -> durations.sum / durations.size}
+  def avgByQuery : Map[String, Long] = threads groupBy {_.query} map {
+    case (key, list) =>
+      val durations = list flatMap {_.sequence} map {_.duration}
+      key -> durations.sum / durations.size
+  }
 
   def validate (queueManager : QueueManager, numCores : Int): Map[String, Double] =
-    threads.map(x => x.query -> x.validate(queueManager, numCores)).groupBy(_._1).map(x => x._1 -> x._2.map(_._2).sum/x._2.size)
+    threads.map(x => x.query -> x.validate(queueManager, numCores)).groupBy(_._1).
+      map(x => x._1 -> x._2.map(_._2).sum/x._2.size)
 
   def validateUpper(queueManager : QueueManager, numCores : Int): Map[String, Double] =
-    threads.map(x => x.query -> x.validateUpper(queueManager, numCores)).groupBy(_._1).map(x => x._1 -> x._2.map(_._2).sum/x._2.size)
+    threads.map(x => x.query -> x.validateUpper(queueManager, numCores)).groupBy(_._1).
+      map(x => x._1 -> x._2.map(_._2).sum/x._2.size)
 
   def validateWith(deadlineSecond : Long): Map[String, Double] =
-    threads.map(x => x.query -> x.validateWith(deadlineSecond)).groupBy(_._1).map(x => x._1 -> x._2.map(_._2).sum/x._2.size)
+    threads.map(x => x.query -> x.validateWith(deadlineSecond)).groupBy(_._1).
+      map(x => x._1 -> x._2.map(_._2).sum/x._2.size)
 
 }
 

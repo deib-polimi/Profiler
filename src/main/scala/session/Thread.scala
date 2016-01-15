@@ -25,7 +25,7 @@ case class Thread(user : String, query : String, queue : String, id : String, ex
     bounds.errorUpper(avg)
   }
 
-  def validateWith (deadlineSeconds : Long) = (deadlineSeconds.toDouble * 1000 - avg) / avg
+  def validateWith (deadline : Long) = (deadline.toDouble - avg) / avg
 
 }
 

@@ -13,7 +13,7 @@ case class Duration(durations : Map[String, Long]) {
 
   def contains(input : String) = durations contains parseIdentifier(input)
 
-  private def parseIdentifier(name : String) = {name split "_"}.slice(1, 3) mkString "_"
+  def parseIdentifier(name : String) = {name split "_"}.slice(1, 3) mkString "_"
 
 }
 

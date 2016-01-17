@@ -4,7 +4,11 @@ class ExternalExecution(override val name : String, external : Duration,
                         tasks : Array[Record])
   extends Execution(name, tasks) {
 
-  override def duration = {external get tasks.head.name}.get
+  override def duration = {
+    val jobs = tasks.map(x => (external parseIdentifier x.name) -> x.name).toMap
+    val durations = jobs flatMap {case (id, task) => external get task}
+    durations.sum
+  }
 
   override def tasks(vertex : String) = tasks filter {
     _.vertex match {

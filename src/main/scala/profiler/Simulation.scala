@@ -11,7 +11,7 @@ import scala.io.Source
   * @author Alessandro
   *
   */
-case class Simulation(executions : Array[Execution]) {
+case class Simulation(executions : Seq[Execution]) {
 
   def avg(taskType : TaskType) : Long = executions.map(_.sum(taskType)).sum / executions.map(_.numTasks(taskType).toLong).sum
 
@@ -43,7 +43,7 @@ case class Simulation(executions : Array[Execution]) {
 
   private def filter(selected : Seq[Int]) = {
     val slice = for(i <- selected) yield executions(i)
-    Simulation(slice.toArray)
+    Simulation(slice)
   }
 
   private def setRange(start : Int, size : Int) : (Simulation, Simulation) = {
@@ -56,7 +56,7 @@ case class Simulation(executions : Array[Execution]) {
 
   def range(min : Int, max : Int) : Simulation = {
     val slice = for(i <- Range(min, max)) yield executions(i)
-    Simulation (slice.toArray)
+    Simulation (slice)
   }
 
   def numOf (taskType : TaskType): Int = {

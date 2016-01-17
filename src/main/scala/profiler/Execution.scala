@@ -7,7 +7,7 @@ package profiler
   * @author Alessandro
   *
   */
-abstract case class Execution(name : String, tasks : Array[Record]) {
+abstract case class Execution(name : String, tasks : Seq[Record]) {
 
   def numTasks(taskType : TaskType) : Int = tasks.count(_.taskType == taskType)
 
@@ -19,7 +19,7 @@ abstract case class Execution(name : String, tasks : Array[Record]) {
 
   lazy val locations : Set[String] = tasks.map(_.location).toSet
 
-  def tasks(taskType : TaskType) : Array[Record] = tasks.filter(_.taskType == taskType)
+  def tasks(taskType : TaskType) : Seq[Record] = tasks.filter(_.taskType == taskType)
 
   def sum(taskType : TaskType) : Long = tasks(taskType).map(_.durationMSec).sum
 
@@ -31,7 +31,7 @@ abstract case class Execution(name : String, tasks : Array[Record]) {
 
   def numTasks(vertex : String) : Long
 
-  def tasks(vertex : String) : Array[Record]
+  def tasks(vertex : String) : Seq[Record]
 
   def sum(vertex : String) : Long
 

@@ -1,11 +1,11 @@
 package profiler
 
 /**
- * @author Alessandro
- */
+  * @author Alessandro
+  */
 case class Shuffle(shuffles : Map[String, Record]) {
 
-  def apply (data : Array[Record]) : Array[Record] = {
+  def apply (data : Seq[Record]) : Seq[Record] = {
     val maps = data.filter(_.taskType == MapTask)
     val reduces = data.filter(_.taskType == ReduceTask).map(x => x - this.shuffles(x.name))
     val shuffles = reduces map {

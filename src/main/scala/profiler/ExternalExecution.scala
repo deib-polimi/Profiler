@@ -1,7 +1,7 @@
 package profiler
 
 class ExternalExecution(override val name : String, external : Duration,
-                        tasks : Array[Record])
+                        tasks : Seq[Record])
   extends Execution(name, tasks) {
 
   override lazy val duration = {

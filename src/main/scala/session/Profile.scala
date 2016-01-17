@@ -7,7 +7,7 @@ import profiler._
 import scala.io.Source
 
 class Profile (numberMap : Map[TaskType, Int], avgMap : Map[TaskType, Long], maxMap : Map[TaskType, Long])
-  extends Simulation(Array()) {
+  extends Simulation(Seq()) {
 
   override def avg(taskType : TaskType) : Long = avgMap(taskType)
 

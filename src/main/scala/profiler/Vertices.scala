@@ -1,8 +1,8 @@
 package profiler
 
 /**
- * @author eugenio
- */
+  * @author eugenio
+  */
 case class Vertices(assignments : Map[String, String]) {
 
   def apply(name : String) = assignments(parseIdentifier(name))
@@ -22,7 +22,7 @@ case class Vertices(assignments : Map[String, String]) {
       throw new RuntimeException(s"missing vertex assignment for task: $missing")
   }
 
-  def apply(records : Array[Record]) : Array[Record] = for (record <- records) yield {
+  def apply(records : Seq[Record]) : Seq[Record] = for (record <- records) yield {
     val taskType = inferType(record.name)
     val vertex = apply(record.name)
     record.changeRecord(taskType, vertex)

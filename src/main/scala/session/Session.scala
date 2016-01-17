@@ -5,11 +5,11 @@ import java.io.File
 import scala.io.Source
 
 /**
- * @author Alessandro
- */
+  * @author Alessandro
+  */
 case class Session(threads : List[Thread]) {
 
-  def avgByQuery : Map[String, Long] = threads groupBy {_.query} map {
+  lazy val avgByQuery : Map[String, Long] = threads groupBy {_.query} map {
     case (key, list) =>
       val durations = list flatMap {_.sequence} map {_.duration}
       key -> durations.sum / durations.size

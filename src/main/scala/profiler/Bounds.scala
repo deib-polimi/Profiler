@@ -1,12 +1,12 @@
 /**
- *
- */
+  *
+  */
 package profiler
 
 /**
- * @author Alessandro
- *
- */
+  * @author Alessandro
+  *
+  */
 case class Bounds(simulation : Simulation, numCores : Int) {
 
   def errorUpper(duration : Long) : Double = {
@@ -19,38 +19,38 @@ case class Bounds(simulation : Simulation, numCores : Int) {
     delta.toDouble / duration.toDouble
   }
 
-  def slots : Double = numCores.toDouble
+  val slots : Double = numCores.toDouble
 
-  def mapRatio = 1.0d
+  val mapRatio = 1.0d
 
-  def reduceRatio = 1.0d
+  val reduceRatio = 1.0d
 
-  def mapSlots = mapRatio * slots
+  val mapSlots = mapRatio * slots
 
-  def reduceSlots = reduceRatio * slots
+  val reduceSlots = reduceRatio * slots
 
-  def avgMap = simulation.avg(MapTask)
+  lazy val avgMap = simulation.avg(MapTask)
 
-  def avgReduce = simulation.avg(ReduceTask)
+  lazy val avgReduce = simulation.avg(ReduceTask)
 
-  def avgShuffle = simulation.avg(ShuffleTask)
+  lazy val avgShuffle = simulation.avg(ShuffleTask)
 
-  def maxMap = simulation.max(MapTask)
+  lazy val maxMap = simulation.max(MapTask)
 
-  def maxReduce = simulation.max(ReduceTask)
+  lazy val maxReduce = simulation.max(ReduceTask)
 
-  def maxShuffle = simulation.max(ShuffleTask)
+  lazy val maxShuffle = simulation.max(ShuffleTask)
 
-  def numMap = simulation.numOf(MapTask)
+  lazy val numMap = simulation.numOf(MapTask)
 
-  def numReduce = simulation.numOf(ReduceTask)
+  lazy val numReduce = simulation.numOf(ReduceTask)
 
-  def upperBound = (avgMap * numMap - 2 * maxMap) / mapSlots +
+  lazy val upperBound = (avgMap * numMap - 2 * maxMap) / mapSlots +
     ((avgReduce + avgShuffle) * numReduce - 2 * (maxReduce + maxShuffle)) / reduceSlots +
     2 * (maxMap + maxReduce + maxShuffle)
 
-  def lowerBound = (avgMap * numMap + (avgReduce + avgShuffle) * numReduce) / slots
+  lazy val lowerBound = (avgMap * numMap + (avgReduce + avgShuffle) * numReduce) / slots
 
-  def avg = (upperBound + lowerBound) / 2
+  lazy val avg = (upperBound + lowerBound) / 2
 
 }

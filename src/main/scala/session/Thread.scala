@@ -5,15 +5,15 @@ import java.io.File
 import profiler.Simulation
 
 /**
- * @author Alessandro
- */
+  * @author Alessandro
+  */
 case class Thread(user : String, query : String, queue : String, id : String, executions : Seq[Run], profile : Simulation) {
 
-  def sequence = executions
+  val sequence = executions
 
-  def avg : Long = sequence.map(_.duration).sum/sequence.size
+  lazy val avg : Long = sequence.map(_.duration).sum/sequence.size
 
-  def fullId = s"$user $query $id"
+  val fullId = s"$user $query $id"
 
   def validate(queueManager : QueueManager, numCores : Int): Double = {
     val bounds = new SessionBounds(queueManager.queue(queue), profile, numCores)

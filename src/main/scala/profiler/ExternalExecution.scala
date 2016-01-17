@@ -4,7 +4,7 @@ class ExternalExecution(override val name : String, external : Duration,
                         tasks : Array[Record])
   extends Execution(name, tasks) {
 
-  override def duration = {
+  override lazy val duration = {
     val jobs = tasks.map(x => (external parseIdentifier x.name) -> x.name).toMap
     val durations = jobs flatMap {case (id, task) => external get task}
     durations.sum
@@ -27,8 +27,8 @@ class ExternalExecution(override val name : String, external : Duration,
 
   override def avg(vertex : String) = sum(vertex) / numTasks(vertex)
 
-  override val vertices = tasks.map(_.vertex).toList.distinct
+  override lazy val vertices = tasks.map(_.vertex).toList.distinct
 
-  override val isNonTrivialDag = {vertices filterNot {_ startsWith "Shuffle"} lengthCompare 2} > 0
+  override lazy val isNonTrivialDag = {vertices filterNot {_ startsWith "Shuffle"} lengthCompare 2} > 0
 
 }

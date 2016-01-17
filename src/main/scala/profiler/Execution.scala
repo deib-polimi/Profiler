@@ -1,23 +1,23 @@
 /**
- *
- */
+  *
+  */
 package profiler
 
 /**
- * @author Alessandro
- *
- */
+  * @author Alessandro
+  *
+  */
 abstract case class Execution(name : String, tasks : Array[Record]) {
 
   def numTasks(taskType : TaskType) : Int = tasks.count(_.taskType == taskType)
 
-  def numMap : Int = numTasks(MapTask)
+  lazy val numMap : Int = numTasks(MapTask)
 
-  def numReduce : Int = numTasks(ReduceTask)
+  lazy val numReduce : Int = numTasks(ReduceTask)
 
-  def duration : Long
+  val duration : Long
 
-  def locations : Set[String] = tasks.map(_.location).toSet
+  lazy val locations : Set[String] = tasks.map(_.location).toSet
 
   def tasks(taskType : TaskType) : Array[Record] = tasks.filter(_.taskType == taskType)
 

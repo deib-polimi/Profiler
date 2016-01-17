@@ -1,6 +1,6 @@
 /**
- *
- */
+  *
+  */
 package profiler
 
 import java.io.File
@@ -8,9 +8,9 @@ import java.io.File
 import scala.io.Source
 
 /**
- * @author Alessandro
- *
- */
+  * @author Alessandro
+  *
+  */
 case class Simulation(executions : Array[Execution]) {
 
   def avg(taskType : TaskType) : Long = executions.map(_.sum(taskType)).sum / executions.map(_.numTasks(taskType).toLong).sum
@@ -25,11 +25,11 @@ case class Simulation(executions : Array[Execution]) {
 
   def min(vertex : String) : Long = executions.map(_.min(vertex)).min
 
-  def avg : Long = executions.map(_.duration).sum / executions.length
+  lazy val avg : Long = executions.map(_.duration).sum / executions.length
 
-  def max : Long = executions.map(_.duration).max
+  lazy val max : Long = executions.map(_.duration).max
 
-  def min : Long = executions.map(_.duration).min
+  lazy val min : Long = executions.map(_.duration).min
 
   def all(taskType : TaskType) = executions.flatMap(_.tasks(taskType)).sortBy(_.durationMSec)
 
@@ -78,11 +78,11 @@ case class Simulation(executions : Array[Execution]) {
 
   def under (bounds : Bounds) : Int = executions.count(_.duration < bounds.lowerBound)
 
-  def size : Int = executions.length
+  val size : Int = executions.length
 
-  val vertices = executions.flatMap(_.vertices).toList.distinct sortBy {_.split(" ").last.toInt}
+  lazy val vertices = executions.flatMap(_.vertices).toList.distinct sortBy {_.split(" ").last.toInt}
 
-  val isNonTrivialDag = executions exists {_.isNonTrivialDag}
+  lazy val isNonTrivialDag = executions exists {_.isNonTrivialDag}
 
 }
 

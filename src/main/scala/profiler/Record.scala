@@ -1,21 +1,25 @@
 /**
- *
- */
+  *
+  */
 package profiler
 
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
- * @author Alessandro
- *
- */
+  * @author Alessandro
+  *
+  */
 case class Record (name : String, durationMSec : Long, startMSec : Long,
                    stopMSec : Long, taskType : TaskType, location : String,
                    vertex : String) {
 
-  def - (other : Record) = Record (name, durationMSec - other.durationMSec,
-    startMSec, stopMSec, taskType, location, vertex)
+  def - (other : Record) = {
+    val nextStart = if (other.stopMSec < stopMSec) other.stopMSec else startMSec
+    val nextStop = if (startMSec < other.startMSec) other.startMSec else stopMSec
+    Record (name, durationMSec - other.durationMSec,
+      nextStart, nextStop, taskType, location, vertex)
+  }
 
   def changeRecord(newType : TaskType, newVertex : String) = Record(name, durationMSec,
     startMSec, stopMSec, newType, location, newVertex)

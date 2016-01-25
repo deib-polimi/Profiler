@@ -88,17 +88,35 @@ case class Simulation(executions : Seq[Execution]) {
 
 object Simulation {
 
-  def fromDir (dir : File) : Simulation = {
+  val DEFAULT_ID = "default"
+
+  def fromDir (dir : File) : Map[String, Simulation] = {
     val dataDir = new File (dir, "data")
     val durations = Duration (Source.fromFile (new File (dataDir, "appDuration.txt")).mkString)
     val lines = Source.fromFile (new File (dataDir, "taskDurationLO.txt")).mkString
     val shuffle = Shuffle (Source.fromFile (new File (dataDir, "shuffleDurationLO.txt")).mkString)
     val vertices = Vertices(Source.fromFile(new File(dataDir, "vertexLtask.txt")).mkString)
-    Simulation (lines, durations, shuffle, vertices)
+    val blocks = {lines split "\n\n"}.toSeq
+    val idFile = new File(dataDir, "appId.txt")
+    val someIds = if (idFile.canRead)
+      Some(Identifiers(Source.fromFile(idFile).mkString)) else None
+    someIds match {
+      case Some(identifiers) =>
+        blocks groupBy {
+          block =>
+            val firstLine = {block split "\n"}.head split "\t"
+            identifiers get firstLine.head
+        } flatMap  {
+          case (Some(id), theseBlocks) =>
+            Some(id -> Simulation(theseBlocks, durations, shuffle, vertices))
+          case (None, _) => None
+        }
+      case None => Map(DEFAULT_ID -> Simulation(blocks, durations, shuffle, vertices))
+    }
   }
 
-  def apply (text : String, duration : Duration, shuffle : Shuffle, vertices : Vertices) : Simulation = {
-    val executions = text.split("\n\n").map(Execution(_, duration, shuffle, vertices)).
+  def apply (blocks : Seq[String], duration : Duration, shuffle : Shuffle, vertices : Vertices) : Simulation = {
+    val executions = blocks.map(Execution(_, duration, shuffle, vertices)).
       filter(x => duration.contains(x.tasks.head.name))
     executions.foreach (x => Console.err.println ("Map tasks: " + x.tasks (MapTask).length +
       " Reduce tasks: " + x.tasks (ReduceTask).length))

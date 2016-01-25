@@ -1,14 +1,14 @@
 /**
- *
- */
+  *
+  */
 package profiler
 
 import java.io.File
 
 /**
- * @author Alessandro
- *
- */
+  * @author Alessandro
+  *
+  */
 object Loader {
 
   private def avg(input : Seq[Double]) : Double = input.sum/input.size
@@ -20,9 +20,13 @@ object Loader {
   }
 
   def performProfiling (nCores : Int, inputDirectory : File): Unit = {
-    val simulation = Simulation fromDir inputDirectory
-    if (simulation.isNonTrivialDag) dagOutput(simulation, nCores)
-    else mapReduceOutput(simulation,  nCores)
+    val simulations = Simulation fromDir inputDirectory
+    simulations foreach {case (id, simulation) =>
+      println(s"Application class: $id")
+      if (simulation.isNonTrivialDag) dagOutput(simulation, nCores)
+      else mapReduceOutput(simulation, nCores)
+      println()
+    }
   }
 
   private def mapReduceOutput(simulation: Simulation, nCores: Int): Unit = {
@@ -73,10 +77,16 @@ object Loader {
   }
 
   def listRuns (nCores : Int, inputDirectory : File, dataSize : Int): Unit = {
-    val simulation = Simulation fromDir inputDirectory
-    // The number of cores must be the last column for compatibility with hadoop-svm
-    println ("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,dataSize,nCores")
-    simulation.executions foreach { printData (_, nCores, dataSize) }
+    val simulations = Simulation fromDir inputDirectory
+    simulations foreach { case (id, simulation) =>
+      println(s"Application class: $id")
+      // The number of cores must be the last column for compatibility with hadoop-svm
+      println("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,dataSize,nCores")
+      simulation.executions foreach {
+        printData(_, nCores, dataSize)
+      }
+      println()
+    }
   }
 
   private def printData (execution: Execution, numCores : Int, dataSize : Int): Unit = {
@@ -106,10 +116,14 @@ object Loader {
   }
 
   def listTaskDurations (inputDirectory : File): Unit = {
-    val simulation = Simulation fromDir inputDirectory
-    simulation.vertices foreach {vertex =>
-      println(s"$vertex:")
-      simulation all vertex foreach {task => println(task.durationMSec)}
+    val simulations = Simulation fromDir inputDirectory
+    simulations foreach {case (id, simulation) =>
+      println(s"Application class: $id")
+      simulation.vertices foreach { vertex =>
+        println(s"$vertex:")
+        simulation all vertex foreach { task => println(task.durationMSec) }
+        println()
+      }
     }
   }
 }

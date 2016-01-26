@@ -59,15 +59,15 @@ case class Simulation(executions : Seq[Execution]) {
     Simulation (slice)
   }
 
-  def numOf (taskType : TaskType): Int = {
-    val num = executions.map(_.numTasks(taskType)).toSet
-    num.max
+  private def extractNumOf[N](groups : Map[N, Seq[Execution]])(implicit integral : Integral[N]) = {
+    val counts = groups map { case (key, list) => key -> list.size }
+    val maxPair = counts maxBy { case (_, count) => count }
+    maxPair._1
   }
 
-  def numOf (vertex : String): Long = {
-    val num = executions.map(_.numTasks(vertex)).toSet
-    num.max
-  }
+  def numOf (taskType : TaskType): Int = extractNumOf(executions groupBy {_.numTasks(taskType)})
+
+  def numOf (vertex : String): Long = extractNumOf(executions groupBy {_.numTasks(vertex)})
 
   def validate(bounds : Bounds) = executions.map(x => bounds.error(x.duration)*100).sortBy(x => x)
 

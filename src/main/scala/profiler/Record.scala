@@ -10,19 +10,19 @@ import java.util.Locale
   * @author Alessandro
   *
   */
-case class Record (name : String, durationMSec : Long, startMSec : Long,
-                   stopMSec : Long, taskType : TaskType, location : String,
-                   vertex : String) {
+case class Record (name : String, durationMSec : Long, startMSec : Long = 0,
+                   stopMSec : Long = 0, taskType : TaskType,
+                   location : String = "", vertex : String = "") {
 
   def - (other : Record) = {
     val nextStart = if (other.stopMSec < stopMSec) other.stopMSec else startMSec
     val nextStop = if (startMSec < other.startMSec) other.startMSec else stopMSec
-    Record (name, durationMSec - other.durationMSec,
-      nextStart, nextStop, taskType, location, vertex)
+    val nextDuration = durationMSec - other.durationMSec
+    copy(durationMSec = nextDuration, startMSec = nextStart, stopMSec = nextStop)
   }
 
-  def changeRecord(newType : TaskType, newVertex : String) = Record(name, durationMSec,
-    startMSec, stopMSec, newType, location, newVertex)
+  def changeRecord(newType : TaskType, newVertex : String) =
+    copy(taskType = newType, vertex = newVertex)
 
 }
 
@@ -38,10 +38,10 @@ object Record {
   def apply(text : String) : Record = {
     val fields = text split "\t"
     if(fields.size < 2) throw new Exception("Wrong entry!")
-    else if(fields.size < 5) Record(fields(0), fields(1).toInt, 0, 0,
-      getType(fields(0)), "", "")
+    else if(fields.size < 5) Record(name = fields(0), durationMSec = fields(1).toLong,
+      taskType = getType(fields(0)))
     else Record(fields(0), fields(1).toInt, parseDate(fields(2)), parseDate(fields(3)),
-      getType(fields(0)), fields(4), "")
+      getType(fields(0)), fields(4))
   }
 
 }

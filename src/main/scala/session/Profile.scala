@@ -4,6 +4,7 @@ import java.io.File
 
 import profiler._
 
+import scala.annotation.tailrec
 import scala.io.Source
 
 class Profile (numberMap : Map[TaskType, Int], avgMap : Map[TaskType, Long], maxMap : Map[TaskType, Long])
@@ -27,6 +28,7 @@ object Profile {
   }
 
   private def processFile (input : File) = {
+    @tailrec
     def parseLine (numberMap : Map[TaskType, Int], avgMap : Map[TaskType, Long],
                    maxMap : Map[TaskType, Long], list : List[String]) :
     (Map[TaskType, Int], Map[TaskType, Long], Map[TaskType, Long]) =

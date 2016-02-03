@@ -54,8 +54,7 @@ case class Simulation(executions: Seq[Execution]) {
     Simulation(slice)
   }
 
-  private def extractNumOf[N](groups: Map[N, Seq[Execution]])
-                             (implicit integral: Integral[N]) = {
+  private def extractNumOf[N: Integral](groups: Map[N, Seq[Execution]]) = {
     val counts = groups map { case (key, list) => key -> list.size }
     val maxPair = counts maxBy { case (_, count) => count }
     maxPair._1

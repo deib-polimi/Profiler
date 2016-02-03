@@ -1,34 +1,36 @@
 package profiler
 
-class ExternalExecution(override val name : String, external : Duration,
-                        tasks : Seq[Record])
+class ExternalExecution(override val name: String, external: Duration, tasks: Seq[Record])
   extends Execution(name, tasks) {
 
   override lazy val duration = {
-    val jobs = tasks.map(x => (external parseIdentifier x.name) -> x.name).toMap
-    val durations = jobs flatMap {case (id, task) => external get task}
-    durations.sum
+    val names = tasks map { _.name }
+    external obtainTotalDuration names
   }
 
-  override def tasks(vertex : String) = tasks filter {
+  override def tasks(vertex: String) = tasks filter {
     _.vertex match {
       case `vertex` => true
       case _ => false
     }
   }
 
-  override def numTasks(vertex : String) = tasks(vertex).length
+  override def numTasks(vertex: String) = tasks(vertex).length
 
-  override def sum(vertex : String) = tasks(vertex).map(_.durationMSec).sum
+  override def sum(vertex: String) = tasks(vertex).map(_.durationMSec).sum
 
-  override def max(vertex : String) = tasks(vertex).map(_.durationMSec).max
+  override def max(vertex: String) = tasks(vertex).map(_.durationMSec).max
 
-  override def min(vertex : String) = tasks(vertex).map(_.durationMSec).min
+  override def min(vertex: String) = tasks(vertex).map(_.durationMSec).min
 
-  override def avg(vertex : String) = sum(vertex) / numTasks(vertex)
+  override def avg(vertex: String) = sum(vertex) / numTasks(vertex)
 
   override lazy val vertices = tasks.map(_.vertex).toList.distinct
 
-  override lazy val isNonTrivialDag = {vertices filterNot {_ startsWith "Shuffle"} lengthCompare 2} > 0
+  override lazy val isNonTrivialDag = {
+    // lengthCompare is O(2) instead of O(length)
+    val moreThanTwo = vertices filterNot {_ startsWith "Shuffle"} lengthCompare 2
+    moreThanTwo > 0
+  }
 
 }

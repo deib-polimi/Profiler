@@ -29,7 +29,7 @@ class ExternalExecution(override val name: String, external: Duration, tasks: Se
 
   override lazy val isNonTrivialDag = {
     // lengthCompare is O(2) instead of O(length)
-    val moreThanTwo = vertices filterNot {_ startsWith "Shuffle"} lengthCompare 2
+    val moreThanTwo = vertices filterNot { _ startsWith "Shuffle" } lengthCompare 2
     moreThanTwo > 0
   }
 

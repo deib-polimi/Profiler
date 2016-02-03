@@ -1,12 +1,9 @@
-/**
- *
- */
 package profiler
 
 /**
- * @author Alessandro
- *
- */
+  * @author Alessandro
+  *
+  */
 sealed abstract class TaskType
 
 case object MapTask extends TaskType

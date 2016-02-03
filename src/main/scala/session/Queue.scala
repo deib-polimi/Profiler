@@ -3,7 +3,7 @@ package session
 /**
   * @author Alessandro
   */
-case class Queue(name : String, ratio : Double, nMap : Long, nReduce : Long, users : Int) {
+case class Queue(name: String, ratio: Double, nMap: Long, nReduce: Long, users: Int) {
 
   lazy val mapRatio = nMap.toDouble / (nMap + nReduce)
 

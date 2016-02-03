@@ -7,30 +7,30 @@ import profiler._
 import scala.annotation.tailrec
 import scala.io.Source
 
-class Profile (numberMap : Map[TaskType, Int], avgMap : Map[TaskType, Long], maxMap : Map[TaskType, Long])
+class Profile(numberMap: Map[TaskType, Int], avgMap: Map[TaskType, Long], maxMap: Map[TaskType, Long])
   extends Simulation(Seq()) {
 
-  override def avg(taskType : TaskType) : Long = avgMap(taskType)
+  override def avg(taskType: TaskType): Long = avgMap(taskType)
 
-  override def max(taskType : TaskType) : Long = maxMap(taskType)
+  override def max(taskType: TaskType): Long = maxMap(taskType)
 
-  override def numOf(taskType : TaskType): Int = numberMap(taskType)
+  override def numOf(taskType: TaskType): Int = numberMap(taskType)
 
 }
 
 object Profile {
 
-  def apply (directory : File) = {
-    val dataDir = new File (directory, "data")
-    val profilerOutput = new File (dataDir, "profile.txt")
-    val (numberMap, avgMap, maxMap) = processFile (profilerOutput)
-    new Profile (numberMap, avgMap, maxMap)
+  def apply(directory: File) = {
+    val dataDir = new File(directory, "data")
+    val profilerOutput = new File(dataDir, "profile.txt")
+    val (numberMap, avgMap, maxMap) = processFile(profilerOutput)
+    new Profile(numberMap, avgMap, maxMap)
   }
 
-  private def processFile (input : File) = {
+  private def processFile(input: File) = {
     @tailrec
-    def parseLine (numberMap : Map[TaskType, Int], avgMap : Map[TaskType, Long],
-                   maxMap : Map[TaskType, Long], list : List[String]) :
+    def parseLine(numberMap: Map[TaskType, Int], avgMap: Map[TaskType, Long],
+                  maxMap: Map[TaskType, Long], list: List[String]):
     (Map[TaskType, Int], Map[TaskType, Long], Map[TaskType, Long]) =
       list match {
         case head :: tail =>

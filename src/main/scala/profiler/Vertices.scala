@@ -3,17 +3,17 @@ package profiler
 /**
   * @author eugenio
   */
-case class Vertices(assignments : Map[String, String]) {
+case class Vertices(assignments: Map[String, String]) {
 
-  def apply(name : String) = assignments(parseIdentifier(name))
+  private def apply(name: String) = assignments(parseIdentifier(name))
 
-  def get(name : String) = assignments get parseIdentifier(name)
+  def get(name: String) = assignments get parseIdentifier(name)
 
-  def contains(name : String) = assignments contains parseIdentifier(name)
+  def contains(name: String) = assignments contains parseIdentifier(name)
 
-  private def parseIdentifier(name : String) = {name split "_"}.tail mkString "_"
+  private def parseIdentifier(name: String) = { name split "_" }.tail mkString "_"
 
-  private def inferType(name : String) = get(name) match {
+  private def inferType(name: String) = get(name) match {
     case Some(vertex) if vertex startsWith "Map" => MapTask
     case Some(vertex) if vertex startsWith "Reduce" => ReduceTask
     case Some(vertex) => throw new RuntimeException(s"unrecognized vertex type: $vertex")
@@ -22,28 +22,27 @@ case class Vertices(assignments : Map[String, String]) {
       throw new RuntimeException(s"missing vertex assignment for task: $missing")
   }
 
-  def apply(records : Seq[Record]) : Seq[Record] = for (record <- records) yield {
-    val taskType = inferType(record.name)
-    val vertex = apply(record.name)
-    record.changeRecord(taskType, vertex)
+  def apply(records: Seq[Record]): Seq[Record] = records map {
+    record =>
+      val taskType = inferType(record.name)
+      val vertex = apply(record.name)
+      record changeRecord (taskType, vertex)
   }
 
 }
 
 object Vertices {
 
-  def apply(text : String) : Vertices = {
-    def parseLine(line : String) : Map[String, String] = {
-      val tokens = line split "\t"
-      val vertex = tokens.head
-      val attempts = tokens.tail
-      val couples = for (attempt <- attempts) yield {
-        val identifier = {attempt split "_"}.tail mkString "_"
-        identifier -> vertex
+  def apply(text: String): Vertices = {
+    def parseLine(line: String) = {
+      val vertex :: attempts = { line split "\t" }.toList
+      attempts map {
+        attempt =>
+          val identifier = { attempt split "_" }.tail mkString "_"
+          identifier -> vertex
       }
-      couples.toMap
     }
-    val lines = text split "\n"
-    Vertices({lines flatMap parseLine}.toMap)
+    val couples = text split "\n" flatMap parseLine
+    Vertices(couples.toMap)
   }
 }

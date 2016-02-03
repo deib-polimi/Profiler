@@ -1,6 +1,3 @@
-/**
-  *
-  */
 package profiler
 
 import java.io.File
@@ -11,78 +8,80 @@ import scala.io.Source
   * @author Alessandro
   *
   */
-case class Simulation(executions : Seq[Execution]) {
+case class Simulation(executions: Seq[Execution]) {
 
-  def avg(taskType : TaskType) : Long = executions.map(_.sum(taskType)).sum / executions.map(_.numTasks(taskType).toLong).sum
+  def avg(taskType: TaskType): Long = executions.map( _ sum taskType ).sum / executions.map(_ numTasks taskType).sum
 
-  def max(taskType : TaskType) : Long = executions.map(_.max(taskType)).max
+  def max(taskType: TaskType): Long = executions.map( _ max taskType ).max
 
-  def min(taskType : TaskType) : Long = executions.map(_.min(taskType)).min
+  def min(taskType: TaskType): Long = executions.map( _ min taskType ).min
 
-  def avg(vertex : String) : Long = executions.map(_.sum(vertex)).sum / executions.map(_.numTasks(vertex)).sum
+  def avg(vertex: String): Long = executions.map( _ sum vertex ).sum / executions.map( _ numTasks vertex ).sum
 
-  def max(vertex : String) : Long = executions.map(_.max(vertex)).max
+  def max(vertex: String): Long = executions.map( _ max vertex ).max
 
-  def min(vertex : String) : Long = executions.map(_.min(vertex)).min
+  def min(vertex: String): Long = executions.map( _ min vertex ).min
 
-  lazy val avg : Long = executions.map(_.duration).sum / executions.length
+  lazy val avg: Long = executions.map(_.duration).sum / executions.length
 
-  lazy val max : Long = executions.map(_.duration).max
+  lazy val max: Long = executions.map(_.duration).max
 
-  lazy val min : Long = executions.map(_.duration).min
+  lazy val min: Long = executions.map(_.duration).min
 
-  def all(taskType : TaskType) = executions.flatMap(_.tasks(taskType)).sortBy(_.durationMSec)
+  def all(taskType: TaskType) = executions flatMap { _ tasks taskType } sortBy { _.durationMSec }
 
-  def all(vertex : String) = executions.flatMap(_.tasks(vertex))
+  def all(vertex: String) = executions flatMap { _ tasks vertex }
 
-  def kFold(subdivision : Int) = {
-    val size = executions.length/subdivision
+  def kFold(subdivision: Int) = {
+    val size = executions.length / subdivision
     val range = Range(0, executions.length, size)
-    range.map(x => setRange(x, size)).filterNot(x => x._1.executions.length < size)
+    range map { x => setRange(x, size) } filterNot { case (first, _) => first.executions.length < size }
   }
 
-  private def filter(selected : Seq[Int]) = {
-    val slice = for(i <- selected) yield executions(i)
+  private def filter(selected: Seq[Int]) = {
+    val slice = selected map { executions(_) }
     Simulation(slice)
   }
 
-  private def setRange(start : Int, size : Int) : (Simulation, Simulation) = {
+  private def setRange(start: Int, size: Int): (Simulation, Simulation) = {
     val all = executions.indices
-    val isInWantedRange : (Int) => Boolean = Range(start, start + size).contains
-    val selected = all filter isInWantedRange
-    val unselected = all filterNot isInWantedRange
+    val (selected, unselected) = all partition Range(start, start + size).contains
     (filter(selected), filter(unselected))
   }
 
-  def range(min : Int, max : Int) : Simulation = {
-    val slice = for(i <- Range(min, max)) yield executions(i)
-    Simulation (slice)
+  def range(min: Int, max: Int) : Simulation = {
+    val slice = Range(min, max) map { executions(_) }
+    Simulation(slice)
   }
 
-  private def extractNumOf[N](groups : Map[N, Seq[Execution]])(implicit integral : Integral[N]) = {
+  private def extractNumOf[N](groups: Map[N, Seq[Execution]])
+                             (implicit integral: Integral[N]) = {
     val counts = groups map { case (key, list) => key -> list.size }
     val maxPair = counts maxBy { case (_, count) => count }
     maxPair._1
   }
 
-  def numOf (taskType : TaskType): Int = extractNumOf(executions groupBy {_.numTasks(taskType)})
+  def numOf(taskType: TaskType): Int = extractNumOf(executions groupBy { _ numTasks taskType })
 
-  def numOf (vertex : String): Long = extractNumOf(executions groupBy {_.numTasks(vertex)})
+  def numOf(vertex: String): Long = extractNumOf(executions groupBy { _ numTasks vertex })
 
-  def validate(bounds : Bounds) = executions.map(x => bounds.error(x.duration)*100).sortBy(x => x)
+  def validate(bounds: Bounds) = executions.map(x => bounds.error(x.duration) * 100).sorted
 
-  def validateMore(bounds : Bounds) =
-    executions.map(x => (bounds.error(x.duration)*100, x.locations.size) ).sortBy(x => x._1)
+  def validateMore(bounds: Bounds) = executions map {
+    x => (bounds.error(x.duration) * 100, x.locations.size)
+  } sortBy { case (first, _) => first }
 
-  def over (bounds : Bounds) : Int = executions.count(_.duration > bounds.upperBound)
+  def over(bounds: Bounds): Int = executions count { _.duration > bounds.upperBound }
 
-  def under (bounds : Bounds) : Int = executions.count(_.duration < bounds.lowerBound)
+  def under(bounds: Bounds): Int = executions count { _.duration < bounds.lowerBound }
 
-  val size : Int = executions.length
+  val size: Int = executions.length
 
-  lazy val vertices = executions.flatMap(_.vertices).toList.distinct sortBy {_.split(" ").last.toInt}
+  lazy val vertices = executions.flatMap(_.vertices).toList.distinct sortBy {
+    _.split(" ").last.toInt
+  }
 
-  lazy val isNonTrivialDag = executions exists {_.isNonTrivialDag}
+  lazy val isNonTrivialDag = executions exists { _.isNonTrivialDag }
 
 }
 
@@ -90,13 +89,13 @@ object Simulation {
 
   val DEFAULT_ID = "default"
 
-  def fromDir (dir : File) : Map[String, Simulation] = {
-    val dataDir = new File (dir, "data")
-    val durations = Duration (Source.fromFile (new File (dataDir, "appDuration.txt")).mkString)
-    val lines = Source.fromFile (new File (dataDir, "taskDurationLO.txt")).mkString
-    val shuffle = Shuffle (Source.fromFile (new File (dataDir, "shuffleDurationLO.txt")).mkString)
+  def fromDir(dir: File): Map[String, Simulation] = {
+    val dataDir = new File(dir, "data")
+    val durations = Duration(Source.fromFile(new File(dataDir, "appDuration.txt")).mkString)
+    val lines = Source.fromFile(new File(dataDir, "taskDurationLO.txt")).mkString
+    val shuffle = Shuffle(Source.fromFile(new File(dataDir, "shuffleDurationLO.txt")).mkString)
     val vertices = Vertices(Source.fromFile(new File(dataDir, "vertexLtask.txt")).mkString)
-    val blocks = {lines split "\n\n"}.toSeq
+    val blocks = { lines split "\n\n" }.toSeq
     val idFile = new File(dataDir, "appId.txt")
     val someIds = if (idFile.canRead)
       Some(Identifiers(Source.fromFile(idFile).mkString)) else None
@@ -104,9 +103,9 @@ object Simulation {
       case Some(identifiers) =>
         blocks groupBy {
           block =>
-            val firstLine = {block split "\n"}.head split "\t"
+            val firstLine = { block split "\n" }.head split "\t"
             identifiers get firstLine.head
-        } flatMap  {
+        } flatMap {
           case (Some(id), theseBlocks) =>
             Some(id -> Simulation(theseBlocks, durations, shuffle, vertices))
           case (None, _) => None
@@ -115,11 +114,16 @@ object Simulation {
     }
   }
 
-  def apply (blocks : Seq[String], duration : Duration, shuffle : Shuffle, vertices : Vertices) : Simulation = {
-    val executions = blocks.map(Execution(_, duration, shuffle, vertices)).
-      filter(x => duration.contains(x.tasks.head.name))
-    executions.foreach (x => Console.err.println ("Map tasks: " + x.tasks (MapTask).length +
-      " Reduce tasks: " + x.tasks (ReduceTask).length))
-    Simulation (executions)
+  def apply(blocks: Seq[String], duration: Duration, shuffle: Shuffle,
+            vertices: Vertices): Simulation = {
+    val executions = blocks map { Execution(_, duration, shuffle, vertices) } filter
+      { duration contains _.tasks.head.name }
+    executions foreach {
+      x =>
+        Console.err println
+          s"Map tasks: ${x.tasks(MapTask).length} " +
+            s"Reduce tasks: ${x.tasks(ReduceTask).length}"
+    }
+    Simulation(executions)
   }
 }

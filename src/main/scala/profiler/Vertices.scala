@@ -26,7 +26,7 @@ case class Vertices(assignments: Map[String, String]) {
     record =>
       val taskType = inferType(record.name)
       val vertex = apply(record.name)
-      record changeRecord (taskType, vertex)
+      record copy (taskType = taskType, vertex = vertex)
   }
 
 }

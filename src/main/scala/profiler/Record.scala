@@ -9,7 +9,8 @@ import java.util.Locale
   */
 case class Record(name: String, durationMSec: Long, startMSec: Long = 0,
                   stopMSec: Long = 0, taskType: TaskType,
-                  location: String = "", vertex: String = "") {
+                  location: String = "", vertex: String = "",
+                  bytes: Long = 0) {
 
   def -(other: Record) = {
     val nextStart = if (other.stopMSec < stopMSec) other.stopMSec else startMSec
@@ -17,9 +18,6 @@ case class Record(name: String, durationMSec: Long, startMSec: Long = 0,
     val nextDuration = durationMSec - other.durationMSec
     copy(durationMSec = nextDuration, startMSec = nextStart, stopMSec = nextStop)
   }
-
-  def changeRecord(newType: TaskType, newVertex: String) =
-    copy(taskType = newType, vertex = newVertex)
 
 }
 

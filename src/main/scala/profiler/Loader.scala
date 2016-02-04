@@ -45,6 +45,10 @@ object Loader {
     println(s"Avg SHUFFLE: ${simulation avg ShuffleTask}")
     println(s"Max SHUFFLE: ${simulation max ShuffleTask}")
 
+    println(s"Min shuffle bytes: ${simulation.minShuffleBytes}")
+    println(s"Avg shuffle bytes: ${simulation.avgShuffleBytes}")
+    println(s"Max shuffle bytes: ${simulation.maxShuffleBytes}")
+
     println(s"MAP tasks: ${simulation numOf MapTask}")
     println(s"REDUCE tasks: ${simulation numOf ReduceTask}")
 
@@ -67,6 +71,11 @@ object Loader {
         println(s"Min $vertex: ${simulation min vertex}")
         println(s"Avg $vertex: ${simulation avg vertex}")
         println(s"Max $vertex: ${simulation max vertex}")
+        if (vertex contains "Shuffle") {
+          println(s"Min bytes $vertex: ${simulation minShuffleBytes vertex}")
+          println(s"Avg bytes $vertex: ${simulation avgShuffleBytes vertex}")
+          println(s"Max bytes $vertex: ${simulation maxShuffleBytes vertex}")
+        }
         println(s"$vertex tasks: ${simulation numOf vertex}")
     }
 
@@ -80,7 +89,7 @@ object Loader {
     simulations foreach { case (id, simulation) =>
       println(s"Application class: $id")
       // The number of cores must be the last column for compatibility with hadoop-svm
-      println("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,dataSize,nCores")
+      println("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,Bavg,Bmax,dataSize,nCores")
       simulation.executions foreach {
         printData(_, nCores, dataSize)
       }
@@ -107,6 +116,10 @@ object Loader {
     builder append { execution avg ShuffleTask }
     builder append ','
     builder append { execution max ShuffleTask }
+    builder append ','
+    builder append { execution.avgShuffleBytes }
+    builder append ','
+    builder append { execution.maxShuffleBytes }
     builder append ','
     builder append dataSize
     builder append ','

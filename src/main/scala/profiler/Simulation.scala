@@ -120,8 +120,7 @@ object Simulation {
     executions foreach {
       x =>
         Console.err println
-          s"Map tasks: ${x.tasks(MapTask).length} " +
-            s"Reduce tasks: ${x.tasks(ReduceTask).length}"
+          s"Map tasks: ${ x numTasks MapTask } Reduce tasks: ${ x numTasks ReduceTask }"
     }
     Simulation(executions)
   }

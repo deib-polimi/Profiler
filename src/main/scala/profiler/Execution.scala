@@ -21,15 +21,24 @@ abstract case class Execution(name: String, tasks: Seq[Record]) {
   def min(taskType: TaskType): Long = tasks(taskType).map(_.durationMSec).min
   def avg(taskType: TaskType): Long = sum(taskType) / numTasks(taskType)
 
-  def tasks(vertex: String): Seq[Record]
-  def numTasks(vertex: String): Long
-  def sum(vertex: String): Long
-  def max(vertex: String): Long
-  def min(vertex: String): Long
-  def avg(vertex: String): Long
+  def tasks(vertex: String): Seq[Record] = tasks filter {
+    _.vertex match {
+      case `vertex` => true
+      case _ => false
+    }
+  }
+  def numTasks(vertex: String): Long = tasks(vertex).length
+  def sum(vertex: String): Long = tasks(vertex).map(_.durationMSec).sum
+  def max(vertex: String): Long = tasks(vertex).map(_.durationMSec).max
+  def min(vertex: String): Long = tasks(vertex).map(_.durationMSec).min
+  def avg(vertex: String): Long = sum(vertex) / numTasks(vertex)
 
-  val vertices: List[String]
-  val isNonTrivialDag: Boolean
+  lazy val vertices: List[String] = tasks.map(_.vertex).toList.distinct
+  lazy val isNonTrivialDag: Boolean = {
+    // lengthCompare is O(2) instead of O(length)
+    val moreThanTwo = vertices filterNot { _ startsWith "Shuffle" } lengthCompare 2
+    moreThanTwo > 0
+  }
 
   lazy val shuffleBytes: Seq[Long] = tasks(ShuffleTask) map { _.bytes }
   lazy val sumShuffleBytes: Long = shuffleBytes.sum
@@ -37,11 +46,11 @@ abstract case class Execution(name: String, tasks: Seq[Record]) {
   lazy val minShuffleBytes: Long = shuffleBytes.min
   lazy val avgShuffleBytes: Long = sumShuffleBytes / numShuffle
 
-  def shuffleBytes(vertex: String): Seq[Long]
-  def sumShuffleBytes(vertex: String): Long
-  def maxShuffleBytes(vertex: String): Long
-  def minShuffleBytes(vertex: String): Long
-  def avgShuffleBytes(vertex: String): Long
+  def shuffleBytes(vertex: String): Seq[Long] = tasks(vertex) map { _.bytes }
+  def sumShuffleBytes(vertex: String): Long = shuffleBytes(vertex).sum
+  def maxShuffleBytes(vertex: String): Long = shuffleBytes(vertex).max
+  def minShuffleBytes(vertex: String): Long = shuffleBytes(vertex).min
+  def avgShuffleBytes(vertex: String): Long = sumShuffleBytes(vertex) / numTasks(vertex)
 
 }
 

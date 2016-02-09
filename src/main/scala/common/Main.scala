@@ -39,7 +39,7 @@ object Main {
     parseArgumentsForProfiling(args) match {
       case Some(tuple) =>
         val (inputDirectory, nCores) = tuple
-        Loader performProfiling (nCores, inputDirectory)
+        Loader(inputDirectory) performProfiling nCores
       case None =>
         Console.err println WRONG_INPUT_ARGUMENTS
         Console.err println USAGE
@@ -47,7 +47,8 @@ object Main {
 
   private def list(args: Iterable[String]): Unit =
     parseArgumentsForListing(args) match {
-      case Some((inputDirectory, nCores, dataSize)) => Loader listRuns (nCores, inputDirectory, dataSize)
+      case Some((inputDirectory, nCores, dataSize)) =>
+        Loader(inputDirectory) listRuns (nCores, dataSize)
       case None =>
         Console.err println WRONG_INPUT_ARGUMENTS
         Console.err println USAGE
@@ -105,7 +106,7 @@ object Main {
   private def tasks(args: List[String]): Unit = args match {
     case dir :: Nil =>
       val directory = new File(dir)
-      Loader listTaskDurations directory
+      Loader(directory) listTaskDurations ()
     case _ =>
   }
 }

@@ -6,7 +6,7 @@ import java.io.File
   * @author Alessandro
   *
   */
-object Loader {
+class Loader(simulations: Map[String, Simulation]) {
 
   private def avg(input: Seq[Double]): Double = input.sum / input.size
 
@@ -16,8 +16,7 @@ object Loader {
     avg(res)
   }
 
-  def performProfiling(nCores: Int, inputDirectory: File): Unit = {
-    val simulations = Simulation fromDir inputDirectory
+  def performProfiling(nCores: Int): Unit = {
     simulations foreach { case (id, simulation) =>
       println(s"Application class: $id")
       if (simulation.isNonTrivialDag) dagOutput(simulation, nCores)
@@ -84,8 +83,7 @@ object Loader {
     println(s"Max completion time: ${simulation.max}")
   }
 
-  def listRuns(nCores: Int, inputDirectory: File, dataSize: Int): Unit = {
-    val simulations = Simulation fromDir inputDirectory
+  def listRuns(nCores: Int, dataSize: Int): Unit = {
     simulations foreach { case (id, simulation) =>
       println(s"Application class: $id")
       // The number of cores must be the last column for compatibility with hadoop-svm
@@ -101,9 +99,9 @@ object Loader {
     val builder = new StringBuilder
     builder append execution.duration
     builder append ','
-    builder append { execution numTasks MapTask }
+    builder append execution.numMap
     builder append ','
-    builder append { execution numTasks ReduceTask }
+    builder append execution.numReduce
     builder append ','
     builder append { execution avg MapTask }
     builder append ','
@@ -127,8 +125,7 @@ object Loader {
     println (builder.toString())
   }
 
-  def listTaskDurations(inputDirectory: File): Unit = {
-    val simulations = Simulation fromDir inputDirectory
+  def listTaskDurations(): Unit = {
     simulations foreach { case (id, simulation) =>
       println(s"Application class: $id")
       simulation.vertices foreach { vertex =>
@@ -137,5 +134,12 @@ object Loader {
         println()
       }
     }
+  }
+}
+
+object Loader {
+  def apply(inputDirectory: File): Loader = {
+    val simulations = Simulation fromDir inputDirectory
+    new Loader(simulations)
   }
 }

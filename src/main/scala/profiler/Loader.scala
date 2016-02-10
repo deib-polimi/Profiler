@@ -32,33 +32,33 @@ class Loader(simulations: Map[String, Simulation]) {
     println(s"Number of jobs: ${simulation.size}")
     println(s"Average error: ${avg(validation)} %")
 
-    println(s"Min MAP: ${simulation min MapTask}")
-    println(s"Avg MAP: ${simulation avg MapTask}")
-    println(s"Max MAP: ${simulation max MapTask}")
+    println(s"Min MAP: ${simulation min MapTask} ms")
+    println(s"Avg MAP: ${simulation avg MapTask} ms")
+    println(s"Max MAP: ${simulation max MapTask} ms")
 
-    println(s"Min REDUCE: ${simulation min ReduceTask}")
-    println(s"Avg REDUCE: ${simulation avg ReduceTask}")
-    println(s"Max REDUCE: ${simulation max ReduceTask}")
+    println(s"Min REDUCE: ${simulation min ReduceTask} ms")
+    println(s"Avg REDUCE: ${simulation avg ReduceTask} ms")
+    println(s"Max REDUCE: ${simulation max ReduceTask} ms")
 
-    println(s"Min SHUFFLE: ${simulation min ShuffleTask}")
-    println(s"Avg SHUFFLE: ${simulation avg ShuffleTask}")
-    println(s"Max SHUFFLE: ${simulation max ShuffleTask}")
+    println(s"Min SHUFFLE: ${simulation min ShuffleTask} ms")
+    println(s"Avg SHUFFLE: ${simulation avg ShuffleTask} ms")
+    println(s"Max SHUFFLE: ${simulation max ShuffleTask} ms")
 
-    println(s"Min shuffle bytes: ${simulation.minShuffleBytes}")
-    println(s"Avg shuffle bytes: ${simulation.avgShuffleBytes}")
-    println(s"Max shuffle bytes: ${simulation.maxShuffleBytes}")
+    println(s"Min shuffle bytes: ${simulation.minShuffleBytes} B")
+    println(s"Avg shuffle bytes: ${simulation.avgShuffleBytes} B")
+    println(s"Max shuffle bytes: ${simulation.maxShuffleBytes} B")
 
     println(s"MAP tasks: ${simulation numOf MapTask}")
     println(s"REDUCE tasks: ${simulation numOf ReduceTask}")
 
-    println(s"Min completion time: ${simulation.min}")
-    println(s"Avg completion time: ${simulation.avg}")
-    println(s"Max completion time: ${simulation.max}")
+    println(s"Min completion time: ${simulation.min} ms")
+    println(s"Avg completion time: ${simulation.avg} ms")
+    println(s"Max completion time: ${simulation.max} ms")
 
     val bounds = Bounds(simulation, nCores)
-    println(s"Low bound: ${bounds.lowerBound}")
-    println(s"Avg bound: ${bounds.avg}")
-    println(s"Upp bound: ${bounds.upperBound}")
+    println(s"Low bound: ${bounds.lowerBound} ms")
+    println(s"Avg bound: ${bounds.avg} ms")
+    println(s"Upp bound: ${bounds.upperBound} ms")
   }
 
   private def dagOutput(simulation: Simulation, nCores: Int): Unit = {
@@ -67,20 +67,20 @@ class Loader(simulations: Map[String, Simulation]) {
 
     simulation.vertices foreach {
       vertex =>
-        println(s"Min $vertex: ${simulation min vertex}")
-        println(s"Avg $vertex: ${simulation avg vertex}")
-        println(s"Max $vertex: ${simulation max vertex}")
+        println(s"Min $vertex: ${simulation min vertex} ms")
+        println(s"Avg $vertex: ${simulation avg vertex} ms")
+        println(s"Max $vertex: ${simulation max vertex} ms")
         if (vertex contains "Shuffle") {
-          println(s"Min bytes $vertex: ${simulation minShuffleBytes vertex}")
-          println(s"Avg bytes $vertex: ${simulation avgShuffleBytes vertex}")
-          println(s"Max bytes $vertex: ${simulation maxShuffleBytes vertex}")
+          println(s"Min bytes $vertex: ${simulation minShuffleBytes vertex} B")
+          println(s"Avg bytes $vertex: ${simulation avgShuffleBytes vertex} B")
+          println(s"Max bytes $vertex: ${simulation maxShuffleBytes vertex} B")
         }
         println(s"$vertex tasks: ${simulation numOf vertex}")
     }
 
-    println(s"Min completion time: ${simulation.min}")
-    println(s"Avg completion time: ${simulation.avg}")
-    println(s"Max completion time: ${simulation.max}")
+    println(s"Min completion time: ${simulation.min} ms")
+    println(s"Avg completion time: ${simulation.avg} ms")
+    println(s"Max completion time: ${simulation.max} ms")
   }
 
   def listRuns(nCores: Int, dataSize: Int): Unit = {

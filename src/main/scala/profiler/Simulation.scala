@@ -22,8 +22,7 @@ case class Simulation(executions: Seq[Execution]) {
   lazy val max: Long = executions.map( _.duration ).max
   lazy val min: Long = executions.map( _.duration ).min
 
-  def all(taskType: TaskType) = executions flatMap { _ tasks taskType } sortBy { _.durationMSec }
-
+  def all(taskType: TaskType) = executions flatMap { _ tasks taskType }
   def all(vertex: String) = executions flatMap { _ tasks vertex }
 
   def kFold(subdivision: Int) = {

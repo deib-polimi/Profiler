@@ -21,12 +21,7 @@ abstract case class Execution(name: String, tasks: Seq[Record]) {
   def min(taskType: TaskType): Long = tasks(taskType).map(_.durationMSec).min
   def avg(taskType: TaskType): Long = sum(taskType) / numTasks(taskType)
 
-  def tasks(vertex: String): Seq[Record] = tasks filter {
-    _.vertex match {
-      case `vertex` => true
-      case _ => false
-    }
-  }
+  def tasks(vertex: String): Seq[Record] = tasks filter { _.vertex == vertex }
   def numTasks(vertex: String): Long = tasks(vertex).length
   def sum(vertex: String): Long = tasks(vertex).map(_.durationMSec).sum
   def max(vertex: String): Long = tasks(vertex).map(_.durationMSec).max

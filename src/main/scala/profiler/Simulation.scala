@@ -25,28 +25,6 @@ case class Simulation(executions: Seq[Execution]) {
   def all(taskType: TaskType) = executions flatMap { _ tasks taskType }
   def all(vertex: String) = executions flatMap { _ tasks vertex }
 
-  def kFold(subdivision: Int) = {
-    val size = executions.length / subdivision
-    val range = Range(0, executions.length, size)
-    range map { x => setRange(x, size) } filterNot { case (first, _) => first.executions.length < size }
-  }
-
-  private def filter(selected: Seq[Int]) = {
-    val slice = selected map { executions(_) }
-    Simulation(slice)
-  }
-
-  private def setRange(start: Int, size: Int): (Simulation, Simulation) = {
-    val all = executions.indices
-    val (selected, unselected) = all partition Range(start, start + size).contains
-    (filter(selected), filter(unselected))
-  }
-
-  def range(min: Int, max: Int) : Simulation = {
-    val slice = Range(min, max) map { executions(_) }
-    Simulation(slice)
-  }
-
   private def extractNumOf[N: Integral](groups: Map[N, Seq[Execution]]) = {
     val counts = groups map { case (key, list) => key -> list.size }
     val maxPair = counts maxBy { case (_, count) => count }
@@ -54,16 +32,6 @@ case class Simulation(executions: Seq[Execution]) {
   }
   def numOf(taskType: TaskType): Int = extractNumOf(executions groupBy { _ numTasks taskType })
   def numOf(vertex: String): Long = extractNumOf(executions groupBy { _ numTasks vertex })
-
-  def validate(bounds: Bounds) = executions.map(x => bounds.error(x.duration) * 100).sorted
-
-  def validateMore(bounds: Bounds) = executions map {
-    x => (bounds.error(x.duration) * 100, x.locations.size)
-  } sortBy { case (first, _) => first }
-
-  def over(bounds: Bounds): Int = executions count { _.duration > bounds.upperBound }
-
-  def under(bounds: Bounds): Int = executions count { _.duration < bounds.lowerBound }
 
   val size: Int = executions.length
 

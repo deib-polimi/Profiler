@@ -8,7 +8,7 @@ import scala.annotation.tailrec
 import scala.io.Source
 
 class Profile(numberMap: Map[TaskType, Int], avgMap: Map[TaskType, Long], maxMap: Map[TaskType, Long])
-  extends Simulation(Seq()) {
+  extends Simulation(Seq(), 1) {
 
   override def avg(taskType: TaskType): Long = avgMap(taskType)
 

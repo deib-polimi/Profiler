@@ -8,7 +8,7 @@ import scala.io.Source
   * @author Alessandro
   *
   */
-case class Simulation(executions: Seq[Execution]) {
+case class Simulation(executions: Seq[Execution], users: Int) {
 
   def avg(taskType: TaskType): Long = executions.map( _ sum taskType ).sum / executions.map( _ numTasks taskType ).sum
   def max(taskType: TaskType): Long = executions.map( _ max taskType ).max
@@ -59,9 +59,14 @@ object Simulation {
     val dataDir = new File(dir, "data")
     val durations = Duration(Source.fromFile(new File(dataDir, "appDuration.txt")).mkString)
     val vertices = Vertices(Source.fromFile(new File(dataDir, "vertexLtask.txt")).mkString)
+
     val idFile = new File(dataDir, "appId.txt")
     val someIds = if (idFile.canRead)
       Some(Identifiers(Source.fromFile(idFile).mkString)) else None
+
+    val countsFile = new File(dataDir, "appUsers.txt")
+    val someCounts = if (countsFile.canRead)
+      Some(UserCount(Source.fromFile(countsFile).mkString)) else None
 
     val shuffleDurations = Source.fromFile(new File(dataDir, "shuffleDurationLO.txt")).mkString
     val shuffleBytes = Source.fromFile(new File(dataDir, "shuffleBytes.txt")).mkString
@@ -77,15 +82,19 @@ object Simulation {
             identifiers get firstLine.head
         } flatMap {
           case (Some(id), theseBlocks) =>
-            Some(id -> Simulation(theseBlocks, durations, shuffle, vertices))
+            someCounts match {
+              case Some(counts) =>
+                Some(id -> Simulation(theseBlocks, durations, shuffle, vertices, counts get id getOrElse 1))
+              case None => Some(id -> Simulation(theseBlocks, durations, shuffle, vertices, 1))
+            }
           case (None, _) => None
         }
-      case None => Map(DEFAULT_ID -> Simulation(blocks, durations, shuffle, vertices))
+      case None => Map(DEFAULT_ID -> Simulation(blocks, durations, shuffle, vertices, 1))
     }
   }
 
   def apply(blocks: Seq[String], duration: Duration, shuffle: Shuffle,
-            vertices: Vertices): Simulation = {
+            vertices: Vertices, users: Int): Simulation = {
     val executions = blocks map { Execution(_, duration, shuffle, vertices) } filter
       { duration contains _.taskId }
     executions foreach {
@@ -93,6 +102,6 @@ object Simulation {
         Console.err println
           s"Map tasks: ${ x numTasks MapTask } Reduce tasks: ${ x numTasks ReduceTask }"
     }
-    Simulation(executions)
+    Simulation(executions, users)
   }
 }

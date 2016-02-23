@@ -76,15 +76,15 @@ class Loader(simulations: Map[String, Simulation]) {
     simulations foreach { case (id, simulation) =>
       println(s"Application class: $id")
       // The number of cores must be the last column for compatibility with hadoop-svm
-      println("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,Bavg,Bmax,dataSize,nCores")
+      println("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,Bavg,Bmax,users,dataSize,nCores")
       simulation.executions foreach {
-        printData(_, nCores, dataSize)
+        printData(_, nCores, dataSize, simulation.users)
       }
       println()
     }
   }
 
-  private def printData(execution: Execution, numCores: Int, dataSize: Int): Unit = {
+  private def printData(execution: Execution, numCores: Int, dataSize: Int, users: Int): Unit = {
     val builder = new StringBuilder
     builder append execution.duration
     builder append ','
@@ -107,6 +107,8 @@ class Loader(simulations: Map[String, Simulation]) {
     builder append { execution.avgShuffleBytes }
     builder append ','
     builder append { execution.maxShuffleBytes }
+    builder append ','
+    builder append users
     builder append ','
     builder append dataSize
     builder append ','

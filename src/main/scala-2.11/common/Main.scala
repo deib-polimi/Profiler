@@ -5,6 +5,8 @@ import java.io.File
 import profiler.Loader
 import session.Session
 
+import scala.annotation.tailrec
+
 /**
   * @author eugenio
   */
@@ -22,20 +24,20 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     if (args.length == 0) Console.err println USAGE
-    else processArguments (args.toList)
+    else processArguments(args.toList)
   }
 
   private def processArguments(args: List[String]): Unit = args.head match {
-    case "-p" | "--single-class" => profiler (args.tail)
-    case "-s" | "--session" => session (args.tail)
-    case "-l" | "--list-runs" => list (args.tail)
-    case "-t" | "--list-tasks" => tasks (args.tail)
+    case "-p" | "--single-class" => profiler(args.tail)
+    case "-s" | "--session" => session(args.tail)
+    case "-l" | "--list-runs" => runs(args.tail)
+    case "-t" | "--list-tasks" => tasks(args.tail)
     case _ =>
       Console.err println WRONG_INPUT_ARGUMENTS
       Console.err println USAGE
   }
 
-  private def profiler(args: Iterable[String]): Unit =
+  private def profiler(args: Seq[String]): Unit =
     parseArgumentsForProfiling(args) match {
       case Some(tuple) =>
         val (inputDirectory, nCores) = tuple
@@ -45,8 +47,17 @@ object Main {
         Console.err println USAGE
     }
 
-  private def list(args: Iterable[String]): Unit =
-    parseArgumentsForListing(args) match {
+  private def parseArgumentsForProfiling(args: Seq[String]): Option[(File, Int)] =
+    try {
+      val inputDirectory = new File(args.head).getAbsoluteFile
+      val nCores = args(1).toInt
+      Some(inputDirectory -> nCores)
+    } catch {
+      case e: IndexOutOfBoundsException => None
+    }
+
+  private def runs(args: Seq[String]): Unit =
+    parseArgumentsForListingRuns(args) match {
       case Some((inputDirectory, nCores, dataSize)) =>
         Loader(inputDirectory) listRuns (nCores, dataSize)
       case None =>
@@ -54,35 +65,26 @@ object Main {
         Console.err println USAGE
     }
 
-  private def parseArgumentsForProfiling(args: Iterable[String]): Option[(File, Int)] =
+  private def parseArgumentsForListingRuns(args: Seq[String]): Option[(File, Int, Int)] =
     try {
-      val iterator = args.iterator
-      val inputDirectory = new File(iterator.next()).getAbsoluteFile
-      val nCores = iterator.next().toInt
-      Some(inputDirectory -> nCores)
-    } catch {
-      case nsee : NoSuchElementException => None
-    }
-
-  private def parseArgumentsForListing(args: Iterable[String]): Option[(File, Int, Int)] =
-    try {
-      val iterator = args.iterator
-      val inputDirectory = new File(iterator.next()).getAbsoluteFile
-      val nCores = iterator.next().toInt
-      val dataSize = iterator.next().toInt
+      val inputDirectory = new File(args.head).getAbsoluteFile
+      val nCores = args(1).toInt
+      val dataSize = args(2).toInt
       Some((inputDirectory, nCores, dataSize))
     } catch {
-      case nsee : NoSuchElementException => None
+      case e: IndexOutOfBoundsException => None
     }
 
-  private def session(args: List [String]): Unit = {
-    type OptionMap = Map [Symbol, String]
-    def nextArgument(map: OptionMap, args: List [String]): Option[OptionMap] = args match {
+  private def session(args: List[String]): Unit = {
+    type OptionMap = Map[Symbol, String]
+
+    @tailrec
+    def nextArgument(map: OptionMap, args: List[String]): Option[OptionMap] = args match {
       case Nil => Some(map)
       case "-c" :: deadline :: tail => nextArgument(map + ('deadline -> deadline), tail)
       case "-d" :: directory :: tail => nextArgument(map + ('profiles -> directory), tail)
       case "-q" :: queues :: tail => nextArgument(map + ('queues -> queues), tail)
-      case directory :: cores :: tail => nextArgument(map + ('input -> directory, 'cores -> cores), tail)
+      case directory :: cores :: tail => nextArgument(map +('input -> directory, 'cores -> cores), tail)
       case _ => None
     }
 
@@ -96,7 +98,7 @@ object Main {
           val pieces = entry split "="
           pieces(0) -> pieces(1).toDouble
         }
-        Session mainEntryPoint (inputDir, profilesDir, nCores, deadline, queues:_*)
+        Session mainEntryPoint (inputDir, profilesDir, nCores, deadline, queues: _*)
       case None =>
         Console.err println WRONG_INPUT_ARGUMENTS
         Console.err println USAGE
@@ -108,5 +110,7 @@ object Main {
       val directory = new File(dir)
       Loader(directory) listTaskDurations ()
     case _ =>
+      Console.err println WRONG_INPUT_ARGUMENTS
+      Console.err println USAGE
   }
 }

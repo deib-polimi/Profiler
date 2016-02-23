@@ -87,7 +87,7 @@ object Simulation {
   def apply(blocks: Seq[String], duration: Duration, shuffle: Shuffle,
             vertices: Vertices): Simulation = {
     val executions = blocks map { Execution(_, duration, shuffle, vertices) } filter
-      { duration contains _.tasks.head.name }
+      { duration contains _.taskId }
     executions foreach {
       x =>
         Console.err println

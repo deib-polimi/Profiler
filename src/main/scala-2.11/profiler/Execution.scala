@@ -4,13 +4,15 @@ package profiler
   * @author Alessandro
   *
   */
-abstract case class Execution(name: String, tasks: Seq[Record]) {
+class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
 
   lazy val numMap: Int = numTasks(MapTask)
   lazy val numReduce: Int = numTasks(ReduceTask)
   lazy val numShuffle: Int = numTasks(ShuffleTask)
 
-  val duration: Long
+  private lazy val taskNames: Seq[String] = tasks map { _.name }
+  lazy val taskId: String = taskNames.head
+  lazy val duration: Long = allDurations obtainTotalDuration taskNames
 
   lazy val locations: Set[String] = tasks.map(_.location).toSet
 
@@ -53,7 +55,7 @@ object Execution {
 
   def apply(text: String, duration: Duration, shuffle: Shuffle, vertices: Vertices): Execution = {
     val lines = text split "\n"
-    new ExternalExecution(lines.head, duration, shuffle(vertices(lines map Record.apply)))
+    new Execution(lines.head, shuffle(vertices(lines map Record.apply)), duration)
   }
 
 }

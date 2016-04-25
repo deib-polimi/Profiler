@@ -67,25 +67,24 @@ object Simulation {
   private val DEFAULT_ID = "default"
 
   def fromDir(dir: File): Map[String, Simulation] = {
-    val dataDir = new File(dir, "data")
-    val durations = Duration(Source.fromFile(new File(dataDir, "appDuration.txt")).mkString)
-    val vertices = Vertices(Source.fromFile(new File(dataDir, "vertexLtask.txt")).mkString)
+    val durations = Duration(Source.fromFile(new File(dir, "appDuration.txt")).mkString)
+    val vertices = Vertices(Source.fromFile(new File(dir, "vertexLtask.txt")).mkString)
 
-    val idFile = new File(dataDir, "appId.txt")
+    val idFile = new File(dir, "appId.txt")
     val someIds = if (idFile.canRead)
       Some(Identifiers(Source.fromFile(idFile).mkString)) else None
 
-    val countsFile = new File(dataDir, "appUsers.txt")
+    val countsFile = new File(dir, "appUsers.txt")
     val someCounts = if (countsFile.canRead)
       Some(UserCount(Source.fromFile(countsFile).mkString)) else None
 
-    val shuffleDurations = Source.fromFile(new File(dataDir, "shuffleStartEnd.txt")).mkString
-    val shuffleBytes = Source.fromFile(new File(dataDir, "shuffleBytes.txt")).mkString
+    val shuffleDurations = Source.fromFile(new File(dir, "shuffleStartEnd.txt")).mkString
+    val shuffleBytes = Source.fromFile(new File(dir, "shuffleBytes.txt")).mkString
     val shuffle = Shuffle(shuffleDurations, shuffleBytes)
 
-    val nodes = Nodes(Source.fromFile(new File(dataDir, "taskNode.txt")).mkString)
+    val nodes = Nodes(Source.fromFile(new File(dir, "taskNode.txt")).mkString)
 
-    val lines = Source.fromFile(new File(dataDir, "taskStartEnd.txt")).mkString
+    val lines = Source.fromFile(new File(dir, "taskStartEnd.txt")).mkString
     val blocks = { lines split "\n\n" }.toSeq
     someIds match {
       case Some(identifiers) =>

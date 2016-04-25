@@ -8,12 +8,7 @@ lazy val commonSettings = Seq(
 lazy val root = (project in file(".")).
   settings(commonSettings: _*).
   settings(
-    name := "Profiler",
-    libraryDependencies ++= Seq(
-      "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.3",
-      "junit" % "junit" % "4.11",
-      "org.scalatest" % "scalatest_2.11" % "2.2.1"
-    )
+    name := "Profiler"
   )
 
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(prependShellScript = Some(defaultShellScript))

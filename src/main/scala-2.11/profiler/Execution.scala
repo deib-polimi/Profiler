@@ -64,9 +64,10 @@ class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
 
 object Execution {
 
-  def apply(text: String, duration: Duration, shuffle: Shuffle, vertices: Vertices): Execution = {
+  def apply(text: String, duration: Duration, shuffle: Shuffle, vertices: Vertices,
+            nodes: Nodes): Execution = {
     val lines = text split "\n"
-    new Execution(lines.head, shuffle(vertices(lines map Record.apply)), duration)
+    new Execution(lines.head, nodes(shuffle(vertices(lines map Record.apply))), duration)
   }
 
 }

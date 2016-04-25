@@ -83,6 +83,8 @@ object Simulation {
     val shuffleBytes = Source.fromFile(new File(dataDir, "shuffleBytes.txt")).mkString
     val shuffle = Shuffle(shuffleDurations, shuffleBytes)
 
+    val nodes = Nodes(Source.fromFile(new File(dataDir, "taskNode.txt")).mkString)
+
     val lines = Source.fromFile(new File(dataDir, "taskStartEnd.txt")).mkString
     val blocks = { lines split "\n\n" }.toSeq
     someIds match {
@@ -95,19 +97,22 @@ object Simulation {
           case (Some(id), theseBlocks) =>
             someCounts match {
               case Some(counts) =>
-                Some(id -> Simulation(theseBlocks, durations, shuffle, vertices, counts get id getOrElse 1))
-              case None => Some(id -> Simulation(theseBlocks, durations, shuffle, vertices, 1))
+                val users = counts get id getOrElse 1
+                Some(id -> Simulation(theseBlocks, durations, shuffle, vertices, nodes, users))
+              case None =>
+                Some(id -> Simulation(theseBlocks, durations, shuffle, vertices, nodes, 1))
             }
           case (None, _) => None
         }
-      case None => Map(DEFAULT_ID -> Simulation(blocks, durations, shuffle, vertices, 1))
+      case None =>
+        Map(DEFAULT_ID -> Simulation(blocks, durations, shuffle, vertices, nodes, 1))
     }
   }
 
-  def apply(blocks: Seq[String], duration: Duration, shuffle: Shuffle,
-            vertices: Vertices, users: Int): Simulation = {
-    val executions = blocks map { Execution(_, duration, shuffle, vertices) } filter
-      { duration contains _.taskId }
+  private def apply(blocks: Seq[String], duration: Duration, shuffle: Shuffle,
+                    vertices: Vertices, nodes: Nodes, users: Int): Simulation = {
+    val executions = blocks map { Execution(_, duration, shuffle, vertices, nodes)
+    } filter { duration contains _.taskId }
     executions foreach {
       x =>
         Console.err println

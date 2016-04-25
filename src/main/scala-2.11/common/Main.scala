@@ -16,7 +16,7 @@ package common
 
 import java.io.File
 
-import profiler.{ Loader, Record }
+import profiler.{Loader, Record}
 import session.Session
 
 import scala.annotation.tailrec
@@ -28,7 +28,7 @@ object Main {
       |  Profiler -p|--single-class directory cores
       |  Profiler -l|--list-runs directory cores dataset_size
       |  Profiler -t|--list-tasks directory
-      |  Profiler -d|--list-data -a|-c|-d directory
+      |  Profiler -d|--list-data -a|-c|-d|-n directory
       |  Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory cores
       |""".stripMargin
 
@@ -122,6 +122,7 @@ object Main {
       case "-a" => Some( (r: Record) => r.startMSec )
       case "-c" => Some( (r: Record) => r.stopMSec )
       case "-d" => Some( (r: Record) => r.durationMSec )
+      case "-n" => Some( (r: Record) => r.node )
       case _ => None
     }
     method match {

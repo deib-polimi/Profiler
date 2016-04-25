@@ -23,7 +23,7 @@ import scala.annotation.switch
 case class Record(name: String, durationMSec: Long, startMSec: Long = 0,
                   stopMSec: Long = 0, taskType: TaskType,
                   location: String = "", vertex: String = "",
-                  bytes: Long = 0) {
+                  bytes: Long = 0, node: String = "") {
 
   def -(other: Record) = {
     val nextStart = if (other.stopMSec < stopMSec) other.stopMSec else startMSec

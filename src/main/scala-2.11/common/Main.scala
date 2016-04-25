@@ -16,7 +16,7 @@ package common
 
 import java.io.File
 
-import profiler.Loader
+import profiler.{ Loader, Record }
 import session.Session
 
 import scala.annotation.tailrec
@@ -28,6 +28,7 @@ object Main {
       |  Profiler -p|--single-class directory cores
       |  Profiler -l|--list-runs directory cores dataset_size
       |  Profiler -t|--list-tasks directory
+      |  Profiler -d|--list-data -a|-c|-d directory
       |  Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory cores
       |""".stripMargin
 
@@ -43,9 +44,8 @@ object Main {
     case "-s" | "--session" => session(args.tail)
     case "-l" | "--list-runs" => runs(args.tail)
     case "-t" | "--list-tasks" => tasks(args.tail)
-    case _ =>
-      Console.err println WRONG_INPUT_ARGUMENTS
-      Console.err println USAGE
+    case "-d" | "--list-data" => data(args.tail)
+    case _ => error()
   }
 
   private def profiler(args: Seq[String]): Unit =
@@ -53,9 +53,7 @@ object Main {
       case Some(tuple) =>
         val (inputDirectory, nCores) = tuple
         Loader(inputDirectory) performProfiling nCores
-      case None =>
-        Console.err println WRONG_INPUT_ARGUMENTS
-        Console.err println USAGE
+      case None => error()
     }
 
   private def parseArgumentsForProfiling(args: Seq[String]): Option[(File, Int)] =
@@ -71,9 +69,7 @@ object Main {
     parseArgumentsForListingRuns(args) match {
       case Some((inputDirectory, nCores, dataSize)) =>
         Loader(inputDirectory) listRuns (nCores, dataSize)
-      case None =>
-        Console.err println WRONG_INPUT_ARGUMENTS
-        Console.err println USAGE
+      case None => error()
     }
 
   private def parseArgumentsForListingRuns(args: Seq[String]): Option[(File, Int, Int)] =
@@ -110,9 +106,7 @@ object Main {
           pieces(0) -> pieces(1).toDouble
         }
         Session mainEntryPoint (inputDir, profilesDir, nCores, deadline, queues: _*)
-      case None =>
-        Console.err println WRONG_INPUT_ARGUMENTS
-        Console.err println USAGE
+      case None => error()
     }
   }
 
@@ -120,8 +114,30 @@ object Main {
     case dir :: Nil =>
       val directory = new File(dir)
       Loader(directory) listTaskDurations ()
-    case _ =>
-      Console.err println WRONG_INPUT_ARGUMENTS
-      Console.err println USAGE
+    case _ => error()
+  }
+
+  private def data(args: List[String]): Unit = {
+    val method = args.head match {
+      case "-a" => Some( (r: Record) => r.startMSec )
+      case "-c" => Some( (r: Record) => r.stopMSec )
+      case "-d" => Some( (r: Record) => r.durationMSec )
+      case _ => None
+    }
+    method match {
+      case None => error()
+      case Some(data) =>
+        args.tail match {
+          case dir :: Nil =>
+            val directory = new File(dir)
+            Loader(directory) listTaskDataByRun data
+          case _ => error()
+        }
+    }
+  }
+
+  private def error(): Unit = {
+    Console.err println WRONG_INPUT_ARGUMENTS
+    Console.err println USAGE
   }
 }

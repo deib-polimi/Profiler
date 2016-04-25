@@ -64,7 +64,7 @@ case class Simulation(executions: Seq[Execution], users: Int) {
 
 object Simulation {
 
-  val DEFAULT_ID = "default"
+  private val DEFAULT_ID = "default"
 
   def fromDir(dir: File): Map[String, Simulation] = {
     val dataDir = new File(dir, "data")
@@ -79,11 +79,11 @@ object Simulation {
     val someCounts = if (countsFile.canRead)
       Some(UserCount(Source.fromFile(countsFile).mkString)) else None
 
-    val shuffleDurations = Source.fromFile(new File(dataDir, "shuffleDurationLO.txt")).mkString
+    val shuffleDurations = Source.fromFile(new File(dataDir, "shuffleStartEnd.txt")).mkString
     val shuffleBytes = Source.fromFile(new File(dataDir, "shuffleBytes.txt")).mkString
     val shuffle = Shuffle(shuffleDurations, shuffleBytes)
 
-    val lines = Source.fromFile(new File(dataDir, "taskDurationLO.txt")).mkString
+    val lines = Source.fromFile(new File(dataDir, "taskStartEnd.txt")).mkString
     val blocks = { lines split "\n\n" }.toSeq
     someIds match {
       case Some(identifiers) =>

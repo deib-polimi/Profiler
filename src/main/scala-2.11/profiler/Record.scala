@@ -18,6 +18,8 @@ package profiler
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+import scala.annotation.switch
+
 case class Record(name: String, durationMSec: Long, startMSec: Long = 0,
                   stopMSec: Long = 0, taskType: TaskType,
                   location: String = "", vertex: String = "",
@@ -43,11 +45,19 @@ object Record {
 
   def apply(text: String): Record = {
     val fields = text split "\t"
-    if (fields.size < 2) throw new RuntimeException("Wrong entry!")
-    else if (fields.size < 5) Record(name = fields(0), durationMSec = fields(1).toLong,
-      taskType = getType(fields(0)))
-    else Record(fields(0), fields(1).toInt, parseDate(fields(2)), parseDate(fields(3)),
-      getType(fields(0)), fields(4))
+    (fields.size: @switch) match {
+      case 2 =>
+        Record(name = fields(0), durationMSec = fields(1).toLong, taskType = getType(fields(0)))
+      case 3 =>
+        val start = fields(1).toLong
+        val stop = fields(2).toLong
+        Record(name = fields(0), durationMSec = stop - start, startMSec = start,
+          stopMSec = stop, taskType = getType(fields(0)))
+      case 5 =>
+        Record(fields(0), fields(1).toInt, parseDate(fields(2)), parseDate(fields(3)),
+          getType(fields(0)), fields(4))
+      case _ => throw new RuntimeException("Wrong entry!")
+    }
   }
 
 }

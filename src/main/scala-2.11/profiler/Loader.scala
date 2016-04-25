@@ -137,6 +137,20 @@ class Loader(simulations: Map[String, Simulation]) {
       }
     }
   }
+
+  def listTaskDataByRun[T](data: Record => T): Unit = {
+    simulations foreach { case (id, simulation) =>
+      println(s"Application class: $id")
+      simulation.executions foreach { execution =>
+        println(s"Task ID: ${execution.taskId}")
+        execution.vertices foreach { vertex =>
+          println(s"$vertex:")
+          execution tasks vertex map data foreach println
+          println()
+        }
+      }
+    }
+  }
 }
 
 object Loader {

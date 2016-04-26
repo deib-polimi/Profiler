@@ -173,7 +173,7 @@ class Loader(simulations: Map[String, Simulation]) {
             println(s"Min $vertex: ${ simulation min (vertex, node) } ms")
             println(s"Avg $vertex: ${ simulation avg (vertex, node) } ms")
             println(s"Max $vertex: ${ simulation max (vertex, node) } ms")
-            println(s"$vertex tasks: ${ simulation numOf (vertex, node) }")
+            println(s"$vertex tasks: ${ simulation avgNumOf (vertex, node) }")
         }
         println()
     }

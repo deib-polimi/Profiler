@@ -59,13 +59,16 @@ case class Simulation(executions: Seq[Execution], users: Int) {
     executions.map( _ numTasks vertex ).sum
 
   lazy val nodes: List[String] = executions.flatMap( _.nodes ).toList.distinct.sorted
-  def numOf(vertex: String, node: String): Long = extractNumOf(executions groupBy { _ numTasks (vertex, node) })
+  def avgNumOf(vertex: String, node: String): Double = {
+    val counts = executions map { _ numTasks (vertex, node) }
+    counts.sum.toDouble / counts.length
+  }
   def all(vertex: String, node: String) = executions flatMap { _ tasks (vertex, node) }
 
-  def avg(vertex: String, node: String): Long = executions.map( _ sum (vertex, node) ).sum /
+  def avg(vertex: String, node: String): Long = executions.flatMap( _ sum (vertex, node) ).sum /
     executions.map( _ numTasks (vertex, node) ).sum
-  def max(vertex: String, node: String): Long = executions.map( _ max (vertex, node) ).max
-  def min(vertex: String, node: String): Long = executions.map( _ min (vertex, node) ).min
+  def max(vertex: String, node: String): Long = executions.flatMap( _ max (vertex, node) ).max
+  def min(vertex: String, node: String): Long = executions.flatMap( _ min (vertex, node) ).min
 
 }
 

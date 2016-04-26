@@ -63,12 +63,26 @@ class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
   lazy val nodes: Seq[String] = tasks map { _.node }
   private lazy val tasksByNodes: Map[String, Seq[Record]] = tasks groupBy { _.node }
 
-  def tasks(vertex: String, node: String): Seq[Record] = tasksByNodes(node) filter { _.vertex == vertex }
+  def tasks(vertex: String, node: String): Seq[Record] = tasksByNodes getOrElse
+    (node, Seq[Record]()) filter { _.vertex == vertex }
   def numTasks(vertex: String, node: String): Long = tasks(vertex, node).length
-  def sum(vertex: String, node: String): Long = tasks(vertex, node).map( _.durationMSec ).sum
-  def max(vertex: String, node: String): Long = tasks(vertex, node).map( _.durationMSec ).max
-  def min(vertex: String, node: String): Long = tasks(vertex, node).map( _.durationMSec ).min
-  def avg(vertex: String, node: String): Long = sum(vertex, node) / numTasks(vertex, node)
+  def sum(vertex: String, node: String): Option[Long] = try {
+    Some(tasks(vertex, node).map( _.durationMSec ).sum)
+  } catch {
+    case e: UnsupportedOperationException => None
+  }
+  def max(vertex: String, node: String): Option[Long] = try {
+    Some(tasks(vertex, node).map( _.durationMSec ).max)
+  } catch {
+    case e: UnsupportedOperationException => None
+  }
+  def min(vertex: String, node: String): Option[Long] = try {
+    Some(tasks(vertex, node).map( _.durationMSec ).min)
+  } catch {
+    case e: UnsupportedOperationException => None
+  }
+  def avg(vertex: String, node: String): Option[Long] = sum(vertex, node) map { _ / numTasks(vertex, node) }
+
 
 }
 

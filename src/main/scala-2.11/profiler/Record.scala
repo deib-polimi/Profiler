@@ -56,7 +56,7 @@ object Record {
       case 5 =>
         Record(fields(0), fields(1).toInt, parseDate(fields(2)), parseDate(fields(3)),
           getType(fields(0)), fields(4))
-      case _ => throw new RuntimeException("Wrong entry!")
+      case _ => throw new RuntimeException(s"wrong entry: $text")
     }
   }
 

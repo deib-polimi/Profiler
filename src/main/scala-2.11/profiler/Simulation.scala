@@ -60,6 +60,7 @@ case class Simulation(executions: Seq[Execution], users: Int) {
 
   lazy val nodes: List[String] = executions.flatMap( _.nodes ).toList.distinct.sorted
   def numOf(vertex: String, node: String): Long = extractNumOf(executions groupBy { _ numTasks (vertex, node) })
+  def all(vertex: String, node: String) = executions flatMap { _ tasks (vertex, node) }
 
   def avg(vertex: String, node: String): Long = executions.map( _ sum (vertex, node) ).sum /
     executions.map( _ numTasks (vertex, node) ).sum

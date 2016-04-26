@@ -183,6 +183,20 @@ class Loader(simulations: Map[String, Simulation]) {
     println(s"Max completion time: ${simulation.max} ms")
   }
 
+  def listTaskDurationsByNode(): Unit = {
+    simulations foreach { case (id, simulation) =>
+      println(s"Application class: $id")
+      simulation.nodes foreach { node =>
+        println(s"Node: $node")
+        simulation.vertices foreach { vertex =>
+          println(s"$vertex:")
+          simulation all (vertex, node) foreach { task => println(task.durationMSec) }
+          println()
+        }
+      }
+    }
+  }
+
 }
 
 object Loader {

@@ -27,7 +27,7 @@ object Main {
     """usage:
       |  Profiler -p|--single-class [--by-node] directory cores
       |  Profiler -l|--list-runs directory cores dataset_size
-      |  Profiler -t|--list-tasks directory
+      |  Profiler -t|--list-tasks [--by-node] directory
       |  Profiler -d|--list-data -a|-c|-d|-n directory
       |  Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory cores
       |""".stripMargin
@@ -49,10 +49,7 @@ object Main {
   }
 
   private def profiler(args: Seq[String]): Unit = {
-    val (byNode, nextArgs) = args.head match {
-      case "--by-node" => (true, args.tail)
-      case _ => (false, args)
-    }
+    val (byNode, nextArgs) = processByNode(args)
     parseArgumentsForProfiling(nextArgs) match {
       case Some((inputDirectory, nCores)) =>
         val loader = Loader(inputDirectory)
@@ -116,11 +113,16 @@ object Main {
     }
   }
 
-  private def tasks(args: List[String]): Unit = args match {
-    case dir :: Nil =>
-      val directory = new File(dir)
-      Loader(directory) listTaskDurations ()
-    case _ => error()
+  private def tasks(args: List[String]): Unit = {
+    val (byNode, nextArgs) = processByNode(args)
+    nextArgs match {
+      case dir :: Nil =>
+        val directory = new File(dir)
+        val loader = Loader(directory)
+        if (byNode) loader listTaskDurationsByNode ()
+        else loader listTaskDurations ()
+      case _ => error()
+    }
   }
 
   private def data(args: List[String]): Unit = {
@@ -146,5 +148,10 @@ object Main {
   private def error(): Unit = {
     Console.err println WRONG_INPUT_ARGUMENTS
     Console.err println USAGE
+  }
+
+  private def processByNode(args: Seq[String]): (Boolean, Seq[String]) = args.head match {
+    case "--by-node" => (true, args.tail)
+    case _ => (false, args)
   }
 }

@@ -25,7 +25,7 @@ object Main {
 
   private final val USAGE =
     """usage:
-      |  Profiler -p|--single-class directory cores
+      |  Profiler -p|--single-class [--by-node] directory cores
       |  Profiler -l|--list-runs directory cores dataset_size
       |  Profiler -t|--list-tasks directory
       |  Profiler -d|--list-data -a|-c|-d|-n directory
@@ -48,13 +48,19 @@ object Main {
     case _ => error()
   }
 
-  private def profiler(args: Seq[String]): Unit =
-    parseArgumentsForProfiling(args) match {
-      case Some(tuple) =>
-        val (inputDirectory, nCores) = tuple
-        Loader(inputDirectory) performProfiling nCores
+  private def profiler(args: Seq[String]): Unit = {
+    val (byNode, nextArgs) = args.head match {
+      case "--by-node" => (true, args.tail)
+      case _ => (false, args)
+    }
+    parseArgumentsForProfiling(nextArgs) match {
+      case Some((inputDirectory, nCores)) =>
+        val loader = Loader(inputDirectory)
+        if (byNode) loader performProfilingByNode nCores
+        else loader performProfiling nCores
       case None => error()
     }
+  }
 
   private def parseArgumentsForProfiling(args: Seq[String]): Option[(File, Int)] =
     try {

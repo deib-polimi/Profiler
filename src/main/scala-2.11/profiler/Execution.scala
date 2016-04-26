@@ -60,6 +60,16 @@ class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
   def minShuffleBytes(vertex: String): Long = shuffleBytes(vertex).min
   def avgShuffleBytes(vertex: String): Long = sumShuffleBytes(vertex) / numTasks(vertex)
 
+  lazy val nodes: Seq[String] = tasks map { _.node }
+  private lazy val tasksByNodes: Map[String, Seq[Record]] = tasks groupBy { _.node }
+
+  def tasks(vertex: String, node: String): Seq[Record] = tasksByNodes(node) filter { _.vertex == vertex }
+  def numTasks(vertex: String, node: String): Long = tasks(vertex, node).length
+  def sum(vertex: String, node: String): Long = tasks(vertex, node).map( _.durationMSec ).sum
+  def max(vertex: String, node: String): Long = tasks(vertex, node).map( _.durationMSec ).max
+  def min(vertex: String, node: String): Long = tasks(vertex, node).map( _.durationMSec ).min
+  def avg(vertex: String, node: String): Long = sum(vertex, node) / numTasks(vertex, node)
+
 }
 
 object Execution {

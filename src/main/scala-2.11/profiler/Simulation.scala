@@ -46,9 +46,7 @@ case class Simulation(executions: Seq[Execution], users: Int) {
 
   val size: Int = executions.length
 
-  lazy val vertices = executions.flatMap(_.vertices).toList.distinct sortBy {
-    _.split(" ").last.toInt
-  }
+  lazy val vertices = executions.flatMap(_.vertices).toList.distinct sortBy { _.split(" ").last.toInt }
   lazy val isNonTrivialDag = executions exists { _.isNonTrivialDag }
 
   lazy val minShuffleBytes = executions.map( _.minShuffleBytes ).min
@@ -59,6 +57,14 @@ case class Simulation(executions: Seq[Execution], users: Int) {
   def maxShuffleBytes(vertex: String) = executions.map( _ maxShuffleBytes vertex ).max
   def avgShuffleBytes(vertex: String) = executions.map( _ sumShuffleBytes vertex ).sum /
     executions.map( _ numTasks vertex ).sum
+
+  lazy val nodes: List[String] = executions.flatMap( _.nodes ).toList.distinct.sorted
+  def numOf(vertex: String, node: String): Long = extractNumOf(executions groupBy { _ numTasks (vertex, node) })
+
+  def avg(vertex: String, node: String): Long = executions.map( _ sum (vertex, node) ).sum /
+    executions.map( _ numTasks (vertex, node) ).sum
+  def max(vertex: String, node: String): Long = executions.map( _ max (vertex, node) ).max
+  def min(vertex: String, node: String): Long = executions.map( _ min (vertex, node) ).min
 
 }
 

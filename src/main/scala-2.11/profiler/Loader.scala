@@ -151,6 +151,38 @@ class Loader(simulations: Map[String, Simulation]) {
       }
     }
   }
+
+  def performProfilingByNode(nCores: Int): Unit = {
+    simulations foreach { case (id, simulation) =>
+      println(s"Application class: $id")
+      dagOutputByNode(simulation, nCores)
+      println()
+    }
+  }
+
+  private def dagOutputByNode(simulation: Simulation, nCores: Int): Unit = {
+    println(s"Number of cores: $nCores")
+    println(s"Number of jobs: ${simulation.size}")
+    println()
+
+    simulation.nodes foreach {
+      node =>
+        println(s"Node: $node")
+        simulation.vertices foreach {
+          vertex =>
+            println(s"Min $vertex: ${ simulation min (vertex, node) } ms")
+            println(s"Avg $vertex: ${ simulation avg (vertex, node) } ms")
+            println(s"Max $vertex: ${ simulation max (vertex, node) } ms")
+            println(s"$vertex tasks: ${ simulation numOf (vertex, node) }")
+        }
+        println()
+    }
+
+    println(s"Min completion time: ${simulation.min} ms")
+    println(s"Avg completion time: ${simulation.avg} ms")
+    println(s"Max completion time: ${simulation.max} ms")
+  }
+
 }
 
 object Loader {

@@ -16,12 +16,11 @@ package profiler
 
 class Nodes(nodes: Map[String, String]) {
 
-  def apply(tasks: Seq[Record]): Seq[Record] = {
-    tasks flatMap { record =>
-      nodes get record.name map { node =>
-        record copy (node = node)
+  def apply(tasks: Seq[Record]): Seq[Record] = tasks flatMap {
+    record =>
+      nodes get record.name map {
+        node => record copy (node = node)
       } orElse Some(record)
-    }
   }
 
 }

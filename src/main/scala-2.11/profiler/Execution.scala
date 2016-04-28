@@ -83,7 +83,6 @@ class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
   }
   def avg(vertex: String, node: String): Option[Long] = sum(vertex, node) map { _ / numTasks(vertex, node) }
 
-
 }
 
 object Execution {

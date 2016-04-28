@@ -35,7 +35,10 @@ object Main {
   private final val WRONG_INPUT_ARGUMENTS = "error: unrecognized input arguments"
 
   def main(args: Array[String]): Unit = {
-    if (args.length == 0) Console.err println USAGE
+    if (args.length == 0) {
+      Console.err println USAGE
+      System exit 1
+    }
     else processArguments(args.toList)
   }
 
@@ -148,6 +151,7 @@ object Main {
   private def error(): Unit = {
     Console.err println WRONG_INPUT_ARGUMENTS
     Console.err println USAGE
+    System exit 1
   }
 
   private def processByNode(args: Seq[String]): (Boolean, Seq[String]) = args.head match {

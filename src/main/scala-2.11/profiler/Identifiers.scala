@@ -14,7 +14,7 @@
  */
 package profiler
 
-case class Identifiers(ids: Map[String, String]) {
+class Identifiers(ids: Map[String, String]) {
 
   def get(input: String) = ids get parseIdentifier(input)
 
@@ -36,7 +36,7 @@ object Identifiers {
 
     val lines = { text split "\n" }.toList
     val ids = lines flatMap parseEntry
-    Identifiers(ids.toMap)
+    new Identifiers(ids.toMap)
   }
 
 }

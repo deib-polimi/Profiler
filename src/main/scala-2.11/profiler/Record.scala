@@ -20,10 +20,10 @@ import java.util.Locale
 
 import scala.annotation.switch
 
-case class Record(name: String, durationMSec: Long, startMSec: Long = 0,
-                  stopMSec: Long = 0, taskType: TaskType,
-                  location: String = "", vertex: String = "",
-                  bytes: Long = 0, node: String = "") {
+case class Record(name: String, durationMSec: Long, startMSec: Long = -1,
+                  stopMSec: Long = -1, taskType: TaskType,
+                  location: String = "UNKNOWN", vertex: String = "UNKNOWN",
+                  bytes: Long = -1, node: String = "UNKNOWN") {
 
   def -(other: Record) = {
     val nextStart = if (other.stopMSec < stopMSec) other.stopMSec else startMSec

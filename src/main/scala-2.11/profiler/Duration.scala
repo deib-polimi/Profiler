@@ -14,7 +14,7 @@
  */
 package profiler
 
-case class Duration(durations: Map[String, Long]) {
+class Duration(durations: Map[String, Long]) {
 
   private def get(name: String) = durations get name
 
@@ -40,7 +40,7 @@ object Duration {
       else Some(fields(1).split("_").tail.mkString("_") -> duration)
     }
     val lines = text split "\n"
-    Duration(lines.flatMap(parseEntry).toMap)
+    new Duration(lines.flatMap(parseEntry).toMap)
   }
 
 }

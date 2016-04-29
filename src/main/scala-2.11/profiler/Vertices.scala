@@ -14,7 +14,7 @@
  */
 package profiler
 
-case class Vertices(assignments: Map[String, String]) {
+class Vertices(assignments: Map[String, String]) {
 
   private def apply(name: String) = assignments(parseIdentifier(name))
 
@@ -54,6 +54,6 @@ object Vertices {
       }
     }
     val couples = text split "\n" flatMap parseLine
-    Vertices(couples.toMap)
+    new Vertices(couples.toMap)
   }
 }

@@ -86,43 +86,80 @@ class Loader(simulations: Map[String, Simulation]) {
   def listRuns(nCores: Int, dataSize: Int): Unit = {
     simulations foreach { case (id, simulation) =>
       println(s"Application class: $id")
-      // The number of cores must be the last column for compatibility with hadoop-svm
-      println("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,Bavg,Bmax,users,dataSize,nCores")
-      simulation.executions foreach {
-        printData(_, nCores, dataSize, simulation.users)
-      }
-      println()
+      if (simulation.isNonTrivialDag) printSimulationDAG(simulation, nCores, dataSize)
+      else printSimulationMapReduce(simulation, nCores, dataSize)
     }
   }
 
-  private def printData(execution: Execution, numCores: Int, dataSize: Int, users: Int): Unit = {
+  private def printSimulationMapReduce(simulation: Simulation, numCores: Int, dataSize: Int): Unit = {
+    // The number of cores must be the last column for compatibility with hadoop-svm
+    println("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,Bavg,Bmax,users,dataSize,nCores")
+    simulation.executions foreach {
+      printDataMapReduce(_, numCores, dataSize, simulation.users)
+    }
+    println()
+  }
+
+  private def printSimulationDAG(simulation: Simulation, numCores: Int, dataSize: Int): Unit = {
     val builder = new StringBuilder
-    builder append execution.duration
-    builder append ','
-    builder append execution.numMap
-    builder append ','
-    builder append execution.numReduce
-    builder append ','
-    builder append { execution avg MapTask }
-    builder append ','
-    builder append { execution max MapTask }
-    builder append ','
-    builder append { execution avg ReduceTask }
-    builder append ','
-    builder append { execution max ReduceTask }
-    builder append ','
-    builder append { execution avg ShuffleTask }
-    builder append ','
-    builder append { execution max ShuffleTask }
-    builder append ','
-    builder append { execution.avgShuffleBytes }
-    builder append ','
-    builder append { execution.maxShuffleBytes }
-    builder append ','
-    builder append users
-    builder append ','
-    builder append dataSize
-    builder append ','
+    builder append "complTime,"
+    val columns = simulation.vertices flatMap {
+      case vertex if vertex contains "Shuffle" =>
+        val number = { vertex split " " }.last
+        val stage = s"S$number"
+        Seq(s"${stage}avg", s"${stage}max", s"${stage}Bavg", s"${stage}Bmax")
+      case vertex =>
+        val stage = vertex split " " map { token =>
+          if (token forall Character.isDigit) token
+          else token.head
+        } mkString ""
+        Seq(s"n$stage", s"${stage}avg", s"${stage}max")
+    }
+    builder append { columns mkString "," }
+    // The number of cores must be the last column for compatibility with hadoop-svm
+    builder append ",users,dataSize,nCores"
+    println(builder.toString())
+    simulation.executions foreach {
+      printDataDAG(_, numCores, dataSize, simulation.users)
+    }
+    println()
+  }
+
+  private def printDataMapReduce(execution: Execution, numCores: Int, dataSize: Int, users: Int): Unit = {
+    val builder = new StringBuilder
+    builder append execution.duration append ','
+    builder append execution.numMap append ','
+    builder append execution.numReduce append ','
+    builder append { execution avg MapTask } append ','
+    builder append { execution max MapTask } append ','
+    builder append { execution avg ReduceTask } append ','
+    builder append { execution max ReduceTask } append ','
+    builder append { execution avg ShuffleTask } append ','
+    builder append { execution max ShuffleTask } append ','
+    builder append { execution.avgShuffleBytes } append ','
+    builder append { execution.maxShuffleBytes } append ','
+    builder append users append ','
+    builder append dataSize append ','
+    builder append numCores
+    println (builder.toString())
+  }
+
+  private def printDataDAG(execution: Execution, numCores: Int, dataSize: Int, users: Int): Unit = {
+    val builder = new StringBuilder
+    builder append execution.duration append ','
+    execution.vertices foreach {
+      case vertex if vertex contains "Shuffle" =>
+        builder append { execution avg vertex } append ','
+        builder append { execution max vertex } append ','
+        builder append { execution avgShuffleBytes vertex } append ','
+        builder append { execution maxShuffleBytes vertex } append ','
+      case vertex =>
+        builder append { execution numTasks vertex } append ','
+        builder append { execution avg vertex } append ','
+        builder append { execution max vertex } append ','
+    }
+    builder append users append ','
+    builder append dataSize append ','
     builder append numCores
     println (builder.toString())
   }

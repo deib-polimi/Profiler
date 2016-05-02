@@ -41,7 +41,7 @@ class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
   def min(vertex: String): Long = tasks(vertex).map(_.durationMSec).min
   def avg(vertex: String): Long = sum(vertex) / numTasks(vertex)
 
-  lazy val vertices: List[String] = tasks.map(_.vertex).toList.distinct
+  lazy val vertices: List[String] = tasks.map(_.vertex).toList.distinct sortBy { _.split(" ").last.toInt }
   lazy val isNonTrivialDag: Boolean = {
     // lengthCompare is O(2) instead of O(length)
     val moreThanTwo = vertices filterNot { _ startsWith "Shuffle" } lengthCompare 2

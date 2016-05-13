@@ -179,11 +179,28 @@ class Loader(simulations: Map[String, Simulation]) {
     simulations foreach { case (id, simulation) =>
       println(s"Application class: $id")
       simulation.executions foreach { execution =>
-        println(s"Task ID: ${execution.taskId}")
+        println(s"Task ID: ${ execution.taskId }")
         execution.vertices foreach { vertex =>
           println(s"$vertex:")
           execution tasks vertex map data foreach println
           println()
+        }
+      }
+    }
+  }
+
+  def listTaskDataByRunAndNode[T](data: Record => T): Unit = {
+    simulations foreach { case (id, simulation) =>
+      println(s"Application class: $id")
+      simulation.executions foreach { execution =>
+        println(s"Task ID: ${ execution.taskId }")
+        execution.vertices foreach { vertex =>
+          println(s"$vertex:")
+          execution.nodes foreach { node =>
+            println(s"$node:")
+            execution tasks (vertex, node) map data foreach println
+            println()
+          }
         }
       }
     }

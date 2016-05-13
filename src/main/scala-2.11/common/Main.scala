@@ -28,7 +28,7 @@ object Main {
       |  Profiler -p|--single-class [--by-node] directory cores
       |  Profiler -l|--list-runs directory cores dataset_size
       |  Profiler -t|--list-tasks [--by-node] directory
-      |  Profiler -d|--list-data -a|-c|-d|-n directory
+      |  Profiler -d|--list-data [--by-node] -a|-c|-d|-n directory
       |  Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory cores
       |""".stripMargin
 
@@ -129,7 +129,8 @@ object Main {
   }
 
   private def data(args: List[String]): Unit = {
-    val method = args.head match {
+    val (byNode, nextArgs) = processByNode(args)
+    val method = nextArgs.head match {
       case "-a" => Some( (r: Record) => r.startMSec )
       case "-c" => Some( (r: Record) => r.stopMSec )
       case "-d" => Some( (r: Record) => r.durationMSec )
@@ -139,10 +140,11 @@ object Main {
     method match {
       case None => error()
       case Some(data) =>
-        args.tail match {
+        nextArgs.tail match {
           case dir :: Nil =>
             val directory = new File(dir)
-            Loader(directory) listTaskDataByRun data
+            if (byNode) Loader(directory) listTaskDataByRunAndNode data
+            else Loader(directory) listTaskDataByRun data
           case _ => error()
         }
     }

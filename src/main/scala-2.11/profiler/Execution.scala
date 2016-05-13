@@ -60,7 +60,7 @@ class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
   def minShuffleBytes(vertex: String): Long = shuffleBytes(vertex).min
   def avgShuffleBytes(vertex: String): Long = sumShuffleBytes(vertex) / numTasks(vertex)
 
-  lazy val nodes: Seq[String] = tasks map { _.node }
+  lazy val nodes: Seq[String] = tasks.map( _.node ).toList.distinct.sorted
   private lazy val tasksByNodes: Map[String, Seq[Record]] = tasks groupBy { _.node }
 
   def tasks(vertex: String, node: String): Seq[Record] = tasksByNodes getOrElse

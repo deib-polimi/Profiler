@@ -17,7 +17,7 @@ package session
 import profiler.{Bounds, Simulation}
 
 class SessionBounds(queue: Queue, override val simulation: Simulation,
-                    override val numCores: Int) extends Bounds (simulation, numCores) {
+                    override val numContainers: Int) extends Bounds (simulation, numContainers) {
 
-  override val slots: Double = numCores.toDouble * queue.ratio / queue.users
+  override val slots: Double = numContainers.toDouble * queue.ratio / queue.users
 }

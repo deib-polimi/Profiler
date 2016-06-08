@@ -15,7 +15,7 @@
  */
 package profiler
 
-case class Bounds(simulation: Simulation, numCores: Int) {
+case class Bounds(simulation: Simulation, numContainers: Int) {
 
   def errorUpper(duration: Long): Double = {
     val delta = upperBound - duration
@@ -27,7 +27,7 @@ case class Bounds(simulation: Simulation, numCores: Int) {
     delta.toDouble / duration.toDouble
   }
 
-  val slots: Double = numCores.toDouble
+  val slots: Double = numContainers.toDouble
 
   val mapRatio = 1.0d
 

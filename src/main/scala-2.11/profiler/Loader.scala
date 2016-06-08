@@ -19,17 +19,17 @@ import java.io.File
 
 class Loader(simulations: Map[String, Simulation]) {
 
-  def performProfiling(nCores: Int): Unit = {
+  def performProfiling(nContainers: Int): Unit = {
     simulations foreach { case (id, simulation) =>
       println(s"Application class: $id")
-      if (simulation.isNonTrivialDag) dagOutput(simulation, nCores)
-      else mapReduceOutput(simulation, nCores)
+      if (simulation.isNonTrivialDag) dagOutput(simulation, nContainers)
+      else mapReduceOutput(simulation, nContainers)
       println()
     }
   }
 
-  private def mapReduceOutput(simulation: Simulation, nCores: Int): Unit = {
-    println(s"Number of cores: $nCores")
+  private def mapReduceOutput(simulation: Simulation, nContainers: Int): Unit = {
+    println(s"Number of containers: $nContainers")
     println(s"Number of jobs: ${simulation.size}")
 
     println(s"Min MAP: ${simulation min MapTask} ms")
@@ -55,14 +55,14 @@ class Loader(simulations: Map[String, Simulation]) {
     println(s"Avg completion time: ${simulation.avg} ms")
     println(s"Max completion time: ${simulation.max} ms")
 
-    val bounds = Bounds(simulation, nCores)
+    val bounds = Bounds(simulation, nContainers)
     println(s"Low bound: ${bounds.lowerBound} ms")
     println(s"Avg bound: ${bounds.avg} ms")
     println(s"Upp bound: ${bounds.upperBound} ms")
   }
 
-  private def dagOutput(simulation: Simulation, nCores: Int): Unit = {
-    println(s"Number of cores: $nCores")
+  private def dagOutput(simulation: Simulation, nContainers: Int): Unit = {
+    println(s"Number of containers: $nContainers")
     println(s"Number of jobs: ${simulation.size}")
 
     simulation.vertices foreach {
@@ -83,24 +83,24 @@ class Loader(simulations: Map[String, Simulation]) {
     println(s"Max completion time: ${simulation.max} ms")
   }
 
-  def listRuns(nCores: Int, dataSize: Int): Unit = {
+  def listRuns(nContainers: Int, dataSize: Int): Unit = {
     simulations foreach { case (id, simulation) =>
       println(s"Application class: $id")
-      if (simulation.isNonTrivialDag) printSimulationDAG(simulation, nCores, dataSize)
-      else printSimulationMapReduce(simulation, nCores, dataSize)
+      if (simulation.isNonTrivialDag) printSimulationDAG(simulation, nContainers, dataSize)
+      else printSimulationMapReduce(simulation, nContainers, dataSize)
     }
   }
 
-  private def printSimulationMapReduce(simulation: Simulation, numCores: Int, dataSize: Int): Unit = {
-    // The number of cores must be the last column for compatibility with hadoop-svm
-    println("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,Bavg,Bmax,users,dataSize,nCores")
+  private def printSimulationMapReduce(simulation: Simulation, numContainers: Int, dataSize: Int): Unit = {
+    // The number of containers must be the last column for compatibility with hadoop-svm
+    println("complTime,nM,nR,Mavg,Mmax,Ravg,Rmax,SHavg,SHmax,Bavg,Bmax,users,dataSize,nContainers")
     simulation.executions foreach {
-      printDataMapReduce(_, numCores, dataSize, simulation.users)
+      printDataMapReduce(_, numContainers, dataSize, simulation.users)
     }
     println()
   }
 
-  private def printSimulationDAG(simulation: Simulation, numCores: Int, dataSize: Int): Unit = {
+  private def printSimulationDAG(simulation: Simulation, numContainers: Int, dataSize: Int): Unit = {
     val builder = new StringBuilder
     builder append "complTime,"
     val columns = simulation.vertices flatMap {
@@ -116,16 +116,16 @@ class Loader(simulations: Map[String, Simulation]) {
         Seq(s"n$stage", s"${stage}avg", s"${stage}max")
     }
     builder append { columns mkString "," }
-    // The number of cores must be the last column for compatibility with hadoop-svm
-    builder append ",users,dataSize,nCores"
+    // The number of containers must be the last column for compatibility with hadoop-svm
+    builder append ",users,dataSize,nContainers"
     println(builder.toString())
     simulation.executions foreach {
-      printDataDAG(_, numCores, dataSize, simulation.users)
+      printDataDAG(_, numContainers, dataSize, simulation.users)
     }
     println()
   }
 
-  private def printDataMapReduce(execution: Execution, numCores: Int, dataSize: Int, users: Int): Unit = {
+  private def printDataMapReduce(execution: Execution, numContainers: Int, dataSize: Int, users: Int): Unit = {
     val builder = new StringBuilder
     builder append execution.duration append ','
     builder append execution.numMap append ','
@@ -140,11 +140,11 @@ class Loader(simulations: Map[String, Simulation]) {
     builder append { execution.maxShuffleBytes } append ','
     builder append users append ','
     builder append dataSize append ','
-    builder append numCores
+    builder append numContainers
     println (builder.toString())
   }
 
-  private def printDataDAG(execution: Execution, numCores: Int, dataSize: Int, users: Int): Unit = {
+  private def printDataDAG(execution: Execution, numContainers: Int, dataSize: Int, users: Int): Unit = {
     val builder = new StringBuilder
     builder append execution.duration append ','
     execution.vertices foreach {
@@ -160,7 +160,7 @@ class Loader(simulations: Map[String, Simulation]) {
     }
     builder append users append ','
     builder append dataSize append ','
-    builder append numCores
+    builder append numContainers
     println (builder.toString())
   }
 
@@ -206,16 +206,16 @@ class Loader(simulations: Map[String, Simulation]) {
     }
   }
 
-  def performProfilingByNode(nCores: Int): Unit = {
+  def performProfilingByNode(nContainers: Int): Unit = {
     simulations foreach { case (id, simulation) =>
       println(s"Application class: $id")
-      dagOutputByNode(simulation, nCores)
+      dagOutputByNode(simulation, nContainers)
       println()
     }
   }
 
-  private def dagOutputByNode(simulation: Simulation, nCores: Int): Unit = {
-    println(s"Number of cores: $nCores")
+  private def dagOutputByNode(simulation: Simulation, nContainers: Int): Unit = {
+    println(s"Number of containers: $nContainers")
     println(s"Number of jobs: ${simulation.size}")
     println()
 

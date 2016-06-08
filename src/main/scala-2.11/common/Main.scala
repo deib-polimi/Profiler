@@ -25,11 +25,11 @@ object Main {
 
   private final val USAGE =
     """usage:
-      |  Profiler -p|--single-class [--by-node] directory cores
-      |  Profiler -l|--list-runs directory cores dataset_size
+      |  Profiler -p|--single-class [--by-node] directory containers
+      |  Profiler -l|--list-runs directory containers dataset_size
       |  Profiler -t|--list-tasks [--by-node] directory
       |  Profiler -d|--list-data [--by-node] -a|-c|-d|-n directory
-      |  Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory cores
+      |  Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory containers
       |""".stripMargin
 
   private final val WRONG_INPUT_ARGUMENTS = "error: unrecognized input arguments"
@@ -54,10 +54,10 @@ object Main {
   private def profiler(args: Seq[String]): Unit = {
     val (byNode, nextArgs) = processByNode(args)
     parseArgumentsForProfiling(nextArgs) match {
-      case Some((inputDirectory, nCores)) =>
+      case Some((inputDirectory, nContainers)) =>
         val loader = Loader(inputDirectory)
-        if (byNode) loader performProfilingByNode nCores
-        else loader performProfiling nCores
+        if (byNode) loader performProfilingByNode nContainers
+        else loader performProfiling nContainers
       case None => error()
     }
   }
@@ -65,25 +65,25 @@ object Main {
   private def parseArgumentsForProfiling(args: Seq[String]): Option[(File, Int)] =
     try {
       val inputDirectory = new File(args.head).getAbsoluteFile
-      val nCores = args(1).toInt
-      Some(inputDirectory -> nCores)
+      val nContainers = args(1).toInt
+      Some(inputDirectory -> nContainers)
     } catch {
       case e: IndexOutOfBoundsException => None
     }
 
   private def runs(args: Seq[String]): Unit =
     parseArgumentsForListingRuns(args) match {
-      case Some((inputDirectory, nCores, dataSize)) =>
-        Loader(inputDirectory) listRuns (nCores, dataSize)
+      case Some((inputDirectory, nContainers, dataSize)) =>
+        Loader(inputDirectory) listRuns (nContainers, dataSize)
       case None => error()
     }
 
   private def parseArgumentsForListingRuns(args: Seq[String]): Option[(File, Int, Int)] =
     try {
       val inputDirectory = new File(args.head).getAbsoluteFile
-      val nCores = args(1).toInt
+      val nContainers = args(1).toInt
       val dataSize = args(2).toInt
-      Some((inputDirectory, nCores, dataSize))
+      Some((inputDirectory, nContainers, dataSize))
     } catch {
       case e: IndexOutOfBoundsException => None
     }
@@ -97,7 +97,7 @@ object Main {
       case "-c" :: deadline :: tail => nextArgument(map + ('deadline -> deadline), tail)
       case "-d" :: directory :: tail => nextArgument(map + ('profiles -> directory), tail)
       case "-q" :: queues :: tail => nextArgument(map + ('queues -> queues), tail)
-      case directory :: cores :: tail => nextArgument(map +('input -> directory, 'cores -> cores), tail)
+      case directory :: containers :: tail => nextArgument(map +('input -> directory, 'containers -> containers), tail)
       case _ => None
     }
 
@@ -105,13 +105,13 @@ object Main {
       case Some(options) =>
         val inputDir = new File(options('input)).getAbsoluteFile
         val profilesDir = new File(options('profiles)).getAbsoluteFile
-        val nCores = options('cores).toInt
+        val nContainers = options('containers).toInt
         val deadline = options('deadline).toInt
         val queues = for (entry <- options('queues) split ",") yield {
           val pieces = entry split "="
           pieces(0) -> pieces(1).toDouble
         }
-        Session mainEntryPoint (inputDir, profilesDir, nCores, deadline, queues: _*)
+        Session mainEntryPoint (inputDir, profilesDir, nContainers, deadline, queues: _*)
       case None => error()
     }
   }

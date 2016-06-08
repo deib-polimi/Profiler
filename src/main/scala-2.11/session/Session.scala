@@ -27,12 +27,12 @@ case class Session(threads: List[Thread]) {
       key -> durations.sum / durations.size
   }
 
-  def validate(queueManager: QueueManager, numCores: Int): Map[String, Double] =
-    threads map { x => x.query -> x.validate(queueManager, numCores) } groupBy
+  def validate(queueManager: QueueManager, numContainers: Int): Map[String, Double] =
+    threads map { x => x.query -> x.validate(queueManager, numContainers) } groupBy
       { _._1 } map { case (key, couples) => key -> couples.map(_._2).sum / couples.size }
 
-  def validateUpper(queueManager: QueueManager, numCores: Int): Map[String, Double] =
-    threads map { x => x.query -> x.validateUpper(queueManager, numCores) } groupBy
+  def validateUpper(queueManager: QueueManager, numContainers: Int): Map[String, Double] =
+    threads map { x => x.query -> x.validateUpper(queueManager, numContainers) } groupBy
       { _._1 } map { case (key, couples) => key -> couples.map(_._2).sum / couples.size }
 
   def validateWith(deadline: Long): Map[String, Double] =
@@ -49,7 +49,7 @@ object Session {
     Session(threads)
   }
 
-  def mainEntryPoint(inputDir: File, profilesDir: File, nCores: Int,
+  def mainEntryPoint(inputDir: File, profilesDir: File, nContainers: Int,
                      deadline: Int, queues: (String, Double)*): Unit = {
     val session = Session(inputDir, profilesDir)
     val manager = QueueManager(session, queues:_*)
@@ -59,9 +59,9 @@ object Session {
     println("Measured times:")
     session.avgByQuery foreach println
     println("Average:")
-    session validate (manager, nCores) foreach println
+    session validate (manager, nContainers) foreach println
     println("Upper:")
-    session validateUpper (manager, nCores) foreach println
+    session validateUpper (manager, nContainers) foreach println
     println("Deadline:")
     session validateWith deadline foreach println
   }

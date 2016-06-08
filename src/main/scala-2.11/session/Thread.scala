@@ -24,13 +24,13 @@ case class Thread(user: String, query: String, queueName: String, id: String, ex
 
   val fullId = s"$user $query $id"
 
-  def validate(queueManager: QueueManager, numCores: Int): Double = {
-    val bounds = new SessionBounds(queueManager queue queueName, profile, numCores)
+  def validate(queueManager: QueueManager, numContainers: Int): Double = {
+    val bounds = new SessionBounds(queueManager queue queueName, profile, numContainers)
     bounds error avg
   }
 
-  def validateUpper(queueManager: QueueManager, numCores: Int): Double = {
-    val bounds = new SessionBounds(queueManager queue queueName, profile, numCores)
+  def validateUpper(queueManager: QueueManager, numContainers: Int): Double = {
+    val bounds = new SessionBounds(queueManager queue queueName, profile, numContainers)
     bounds errorUpper avg
   }
 

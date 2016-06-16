@@ -30,7 +30,13 @@ object Main {
       |  Profiler -t|--list-tasks [--by-node] directory
       |  Profiler -d|--list-data [--by-node] -a|-c|-d|-n directory
       |  Profiler -s|--session -c deadline -q queue1=alpha1,queue2=alpha2,queue3=alpha3,queue4=alpha4 -d profiles_directory directory containers
-      |""".stripMargin
+    """.stripMargin
+
+  private final val HELP =
+    """optional files:
+      |  appId.txt, example line: R1  application_1463474628860_0035
+      |  appUsers.txt, example line:  R2  4
+    """.stripMargin
 
   private final val WRONG_INPUT_ARGUMENTS = "error: unrecognized input arguments"
 
@@ -48,6 +54,7 @@ object Main {
     case "-l" | "--list-runs" => runs(args.tail)
     case "-t" | "--list-tasks" => tasks(args.tail)
     case "-d" | "--list-data" => data(args.tail)
+    case "-h" | "--help" => help()
     case _ => error()
   }
 
@@ -154,6 +161,11 @@ object Main {
     Console.err println WRONG_INPUT_ARGUMENTS
     Console.err println USAGE
     System exit 1
+  }
+
+  private def help(): Unit = {
+    println(USAGE)
+    println(HELP)
   }
 
   private def processByNode(args: Seq[String]): (Boolean, Seq[String]) = args.head match {

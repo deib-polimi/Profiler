@@ -32,8 +32,14 @@ case class Record(name: String, durationMSec: Long, startMSec: Long = -1,
     copy(durationMSec = nextDuration, startMSec = nextStart, stopMSec = nextStop)
   }
 
-  def cutFrontOverlap(previousCompletion: Long): Record = if (startMSec < previousCompletion)
-    copy(startMSec = previousCompletion, durationMSec = stopMSec - previousCompletion) else this
+  def cutFrontOverlap(previousCompletion: Long): Record = previousCompletion match {
+    case time if stopMSec < time =>
+      Console.err println s"warning: task $name completely overlaps dependency"
+      copy(startMSec = -2, stopMSec = -2, durationMSec = -2)
+    case time if startMSec < time =>
+      copy(startMSec = time, durationMSec = stopMSec - time)
+    case _ => this
+  }
 
 }
 

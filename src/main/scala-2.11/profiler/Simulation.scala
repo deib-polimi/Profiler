@@ -21,11 +21,13 @@ import scala.io.Source
 
 case class Simulation(executions: Seq[Execution], users: Int) {
 
-  def avg(taskType: TaskType): Long = executions.map( _ sum taskType ).sum / executions.map( _ numTasks taskType ).sum
+  def avg(taskType: TaskType): Long = executions.map( _ sum taskType ).sum /
+    executions.map( _ numValidTasks taskType ).sum
   def max(taskType: TaskType): Long = executions.map( _ max taskType ).max
   def min(taskType: TaskType): Long = executions.map( _ min taskType ).min
 
-  def avg(vertex: String): Long = executions.map( _ sum vertex ).sum / executions.map( _ numTasks vertex ).sum
+  def avg(vertex: String): Long = executions.map( _ sum vertex ).sum /
+    executions.map( _ numValidTasks vertex ).sum
   def max(vertex: String): Long = executions.map( _ max vertex ).max
   def min(vertex: String): Long = executions.map( _ min vertex ).min
 
@@ -33,8 +35,7 @@ case class Simulation(executions: Seq[Execution], users: Int) {
   lazy val max: Long = executions.map( _.duration ).max
   lazy val min: Long = executions.map( _.duration ).min
 
-  def all(taskType: TaskType) = executions flatMap { _ tasks taskType }
-  def all(vertex: String) = executions flatMap { _ tasks vertex }
+  def allValid(vertex: String) = executions flatMap { _ validTasks vertex }
 
   private def extractNumOf[N: Integral](groups: Map[N, Seq[Execution]]) = {
     val counts = groups map { case (key, list) => key -> list.size }
@@ -51,7 +52,7 @@ case class Simulation(executions: Seq[Execution], users: Int) {
 
   lazy val minShuffleBytes = executions.map( _.minShuffleBytes ).min
   lazy val maxShuffleBytes = executions.map( _.maxShuffleBytes ).max
-  lazy val avgShuffleBytes = executions.map( _.sumShuffleBytes ).sum / executions.map( _.numShuffle ).sum
+  lazy val avgShuffleBytes = executions.map( _.sumShuffleBytes ).sum / executions.map( _ numTasks ShuffleTask ).sum
 
   def minShuffleBytes(vertex: String) = executions.map( _ minShuffleBytes vertex ).min
   def maxShuffleBytes(vertex: String) = executions.map( _ maxShuffleBytes vertex ).max
@@ -63,10 +64,10 @@ case class Simulation(executions: Seq[Execution], users: Int) {
     val counts = executions map { _ numTasks (vertex, node) }
     counts.sum.toDouble / counts.length
   }
-  def all(vertex: String, node: String) = executions flatMap { _ tasks (vertex, node) }
+  def allValid(vertex: String, node: String) = executions flatMap { _ validTasks (vertex, node) }
 
   def avg(vertex: String, node: String): Long = executions.flatMap( _ sum (vertex, node) ).sum /
-    executions.map( _ numTasks (vertex, node) ).sum
+    executions.map( _ numValidTasks (vertex, node) ).sum
   def max(vertex: String, node: String): Long = executions.flatMap( _ max (vertex, node) ).max
   def min(vertex: String, node: String): Long = executions.flatMap( _ min (vertex, node) ).min
 

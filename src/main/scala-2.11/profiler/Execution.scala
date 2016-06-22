@@ -17,29 +17,29 @@ package profiler
 
 class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
 
-  lazy val numMap: Int = numTasks(MapTask)
-  lazy val numReduce: Int = numTasks(ReduceTask)
-  lazy val numShuffle: Int = numTasks(ShuffleTask)
-
   private lazy val taskNames: Seq[String] = tasks map { _.name }
   lazy val taskId: String = taskNames.head
   lazy val duration: Long = allDurations obtainTotalDuration taskNames
 
   lazy val locations: Set[String] = tasks.map(_.location).toSet
 
-  def tasks(taskType: TaskType): Seq[Record] = tasks filter (_.taskType == taskType)
+  def tasks(taskType: TaskType): Seq[Record] = tasks filter { _.taskType == taskType }
   def numTasks(taskType: TaskType): Int = tasks(taskType).length
-  def sum(taskType: TaskType): Long = tasks(taskType).map(_.durationMSec).sum
-  def max(taskType: TaskType): Long = tasks(taskType).map(_.durationMSec).max
-  def min(taskType: TaskType): Long = tasks(taskType).map(_.durationMSec).min
-  def avg(taskType: TaskType): Long = sum(taskType) / numTasks(taskType)
+  def validTasks(taskType: TaskType): Seq[Record] = tasks(taskType) filter { _.durationMSec > 0 }
+  def numValidTasks(taskType: TaskType): Int = validTasks(taskType).length
+  def sum(taskType: TaskType): Long = validTasks(taskType).map(_.durationMSec).sum
+  def max(taskType: TaskType): Long = validTasks(taskType).map(_.durationMSec).max
+  def min(taskType: TaskType): Long = validTasks(taskType).map(_.durationMSec).min
+  def avg(taskType: TaskType): Long = sum(taskType) / numValidTasks(taskType)
 
   def tasks(vertex: String): Seq[Record] = tasks filter { _.vertex == vertex }
   def numTasks(vertex: String): Long = tasks(vertex).length
-  def sum(vertex: String): Long = tasks(vertex).map(_.durationMSec).sum
-  def max(vertex: String): Long = tasks(vertex).map(_.durationMSec).max
-  def min(vertex: String): Long = tasks(vertex).map(_.durationMSec).min
-  def avg(vertex: String): Long = sum(vertex) / numTasks(vertex)
+  def validTasks(vertex: String): Seq[Record] = tasks(vertex) filter { _.durationMSec > 0 }
+  def numValidTasks(vertex: String): Long = validTasks(vertex).length
+  def sum(vertex: String): Long = validTasks(vertex).map(_.durationMSec).sum
+  def max(vertex: String): Long = validTasks(vertex).map(_.durationMSec).max
+  def min(vertex: String): Long = validTasks(vertex).map(_.durationMSec).min
+  def avg(vertex: String): Long = sum(vertex) / numValidTasks(vertex)
 
   lazy val vertices: List[String] = tasks.map(_.vertex).toList.distinct sortBy { _.split(" ").last.toInt }
   lazy val isNonTrivialDag: Boolean = {
@@ -52,7 +52,7 @@ class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
   lazy val sumShuffleBytes: Long = shuffleBytes.sum
   lazy val maxShuffleBytes: Long = shuffleBytes.max
   lazy val minShuffleBytes: Long = shuffleBytes.min
-  lazy val avgShuffleBytes: Long = sumShuffleBytes / numShuffle
+  lazy val avgShuffleBytes: Long = sumShuffleBytes / numTasks(ShuffleTask)
 
   def shuffleBytes(vertex: String): Seq[Long] = tasks(vertex) map { _.bytes }
   def sumShuffleBytes(vertex: String): Long = shuffleBytes(vertex).sum
@@ -66,22 +66,24 @@ class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
   def tasks(vertex: String, node: String): Seq[Record] = tasksByNodes getOrElse
     (node, Seq[Record]()) filter { _.vertex == vertex }
   def numTasks(vertex: String, node: String): Long = tasks(vertex, node).length
+  def validTasks(vertex: String, node: String): Seq[Record] = tasks(vertex, node) filter { _.durationMSec > 0 }
+  def numValidTasks(vertex: String, node: String): Long = validTasks(vertex, node).length
   def sum(vertex: String, node: String): Option[Long] = try {
-    Some(tasks(vertex, node).map( _.durationMSec ).sum)
+    Some(validTasks(vertex, node).map( _.durationMSec ).sum)
   } catch {
     case e: UnsupportedOperationException => None
   }
   def max(vertex: String, node: String): Option[Long] = try {
-    Some(tasks(vertex, node).map( _.durationMSec ).max)
+    Some(validTasks(vertex, node).map( _.durationMSec ).max)
   } catch {
     case e: UnsupportedOperationException => None
   }
   def min(vertex: String, node: String): Option[Long] = try {
-    Some(tasks(vertex, node).map( _.durationMSec ).min)
+    Some(validTasks(vertex, node).map( _.durationMSec ).min)
   } catch {
     case e: UnsupportedOperationException => None
   }
-  def avg(vertex: String, node: String): Option[Long] = sum(vertex, node) map { _ / numTasks(vertex, node) }
+  def avg(vertex: String, node: String): Option[Long] = sum(vertex, node) map { _ / numValidTasks(vertex, node) }
 
   def cleanOverlaps(dependencies: Map[String, List[String]]): Execution = {
     val groups = tasks groupBy { _.vertex }

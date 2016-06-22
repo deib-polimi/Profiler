@@ -128,8 +128,8 @@ class Loader(simulations: Map[String, Simulation]) {
   private def printDataMapReduce(execution: Execution, numContainers: Int, dataSize: Int, users: Int): Unit = {
     val builder = new StringBuilder
     builder append execution.duration append ','
-    builder append execution.numMap append ','
-    builder append execution.numReduce append ','
+    builder append { execution numTasks MapTask } append ','
+    builder append { execution numTasks ReduceTask } append ','
     builder append { execution avg MapTask } append ','
     builder append { execution max MapTask } append ','
     builder append { execution avg ReduceTask } append ','
@@ -169,7 +169,7 @@ class Loader(simulations: Map[String, Simulation]) {
       println(s"Application class: $id")
       simulation.vertices foreach { vertex =>
         println(s"$vertex:")
-        simulation all vertex foreach { task => println(task.durationMSec) }
+        simulation allValid vertex foreach { task => println(task.durationMSec) }
         println()
       }
     }
@@ -244,7 +244,7 @@ class Loader(simulations: Map[String, Simulation]) {
         println(s"Node: $node")
         simulation.vertices foreach { vertex =>
           println(s"$vertex:")
-          simulation all (vertex, node) foreach { task => println(task.durationMSec) }
+          simulation allValid (vertex, node) foreach { task => println(task.durationMSec) }
           println()
         }
       }

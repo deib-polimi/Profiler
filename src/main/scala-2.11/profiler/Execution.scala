@@ -83,6 +83,21 @@ class Execution(name: String, tasks: Seq[Record], allDurations: Duration) {
   }
   def avg(vertex: String, node: String): Option[Long] = sum(vertex, node) map { _ / numTasks(vertex, node) }
 
+  def cleanOverlaps(dependencies: Map[String, List[String]]): Execution = {
+    val groups = tasks groupBy { _.vertex }
+    val nextTasks = groups flatMap {
+      case (vertex, theseTasks) =>
+        val actualVertexName = vertex replace ("Shuffle", "Reducer")
+        dependencies get actualVertexName map {
+          list =>
+            val predecessorCompletions = list flatMap groups.apply map { _.stopMSec }
+            val lastCompletion = predecessorCompletions.max
+            theseTasks map { _ cutFrontOverlap lastCompletion }
+        } getOrElse theseTasks
+    }
+    new Execution(name, nextTasks.toSeq, allDurations)
+  }
+
 }
 
 object Execution {

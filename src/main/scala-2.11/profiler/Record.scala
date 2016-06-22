@@ -25,12 +25,15 @@ case class Record(name: String, durationMSec: Long, startMSec: Long = -1,
                   location: String = "UNKNOWN", vertex: String = "UNKNOWN",
                   bytes: Long = -1, node: String = "UNKNOWN") {
 
-  def -(other: Record) = {
+  def -(other: Record): Record = {
     val nextStart = if (other.stopMSec < stopMSec) other.stopMSec else startMSec
     val nextStop = if (startMSec < other.startMSec) other.startMSec else stopMSec
     val nextDuration = durationMSec - other.durationMSec
     copy(durationMSec = nextDuration, startMSec = nextStart, stopMSec = nextStop)
   }
+
+  def cutFrontOverlap(previousCompletion: Long): Record = if (startMSec < previousCompletion)
+    copy(startMSec = previousCompletion, durationMSec = stopMSec - previousCompletion) else this
 
 }
 

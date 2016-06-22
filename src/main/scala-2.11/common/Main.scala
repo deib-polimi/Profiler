@@ -36,6 +36,7 @@ object Main {
     """optional files:
       |  appId.txt, example line: R1  application_1463474628860_0035
       |  appUsers.txt, example line:  R2  4
+      |  dependencies.json, example:  {"R4": {"Reducer 2": ["Map 1"]}}
     """.stripMargin
 
   private final val WRONG_INPUT_ARGUMENTS = "error: unrecognized input arguments"

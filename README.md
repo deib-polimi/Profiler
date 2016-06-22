@@ -11,9 +11,12 @@ Code in this repository is licensed under the
 ## Usage Note
 
 Alongside the required files output by [LogParser](https://github.com/deib-polimi/LogParser),
-you can provide also `appId.txt` and `appUsers.txt`.
+you can provide also several optional files.
 
 * `appId.txt`: a text file with tab-separated lines reporting the class name as
                first field, followed by a list of job IDs.
 * `appUsers.txt`: a text file with tab-separated lines reporting the class name
                   and its number of concurrent users.
+* `dependencies.json`: a JSON file mapping profiles to dependency graphs.
+                       Dependency graphs should be structured as a map from dependent
+                       stages to lists of dependencies.

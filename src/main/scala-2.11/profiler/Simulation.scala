@@ -70,6 +70,10 @@ case class Simulation(executions: Seq[Execution], users: Int) {
   def max(vertex: String, node: String): Long = executions.flatMap( _ max (vertex, node) ).max
   def min(vertex: String, node: String): Long = executions.flatMap( _ min (vertex, node) ).min
 
+  def cleanOverlaps(dependencies: Map[String, List[String]]): Simulation = copy(
+    executions = executions map { _ cleanOverlaps dependencies }
+  )
+
 }
 
 object Simulation {
@@ -96,7 +100,7 @@ object Simulation {
 
     val lines = Source.fromFile(new File(dir, "taskStartEnd.txt")).mkString
     val blocks = { lines split "\n\n" }.toSeq
-    someIds match {
+    val simulationsMap = someIds match {
       case Some(identifiers) =>
         blocks groupBy {
           block =>
@@ -115,6 +119,19 @@ object Simulation {
         }
       case None =>
         Map(DEFAULT_ID -> Simulation(blocks, durations, shuffle, vertices, nodes, 1))
+    }
+
+    val dependenciesFile = new File(dir, "dependencies.json")
+    val someDependencies = if (dependenciesFile.canRead)
+      Some(Dependencies(Source.fromFile(dependenciesFile).mkString)) else None
+    someDependencies match {
+      case Some(dependencies) =>
+        simulationsMap map {
+          case (query, simulation) =>
+            val theseDependencies = dependencies(query)
+            query -> { simulation cleanOverlaps theseDependencies }
+        }
+      case None => simulationsMap
     }
   }
 

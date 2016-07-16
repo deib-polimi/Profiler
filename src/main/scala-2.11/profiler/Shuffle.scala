@@ -19,7 +19,7 @@ class Shuffle(shuffles: Map[String, Record], bytes: Map[String, Long]) {
   def apply(data: Seq[Record]): Seq[Record] = {
     val maps = data filter { _.taskType == MapTask }
     val reduces = data filter { _.taskType == ReduceTask } map {
-      task => task - shuffles(task.name)
+      task => task cutShuffleFromHead shuffles(task.name)
     }
     val theseShuffles = reduces flatMap {
       task =>

@@ -25,12 +25,17 @@ case class Record(name: String, durationMSec: Long, startMSec: Long = -1,
                   location: String = "UNKNOWN", vertex: String = "UNKNOWN",
                   bytes: Long = -1, node: String = "UNKNOWN") {
 
-  def -(other: Record): Record = {
-    val nextStart = if (other.stopMSec < stopMSec) other.stopMSec else startMSec
-    val nextStop = if (startMSec < other.startMSec) other.startMSec else stopMSec
-    val nextDuration = durationMSec - other.durationMSec
-    copy(durationMSec = nextDuration, startMSec = nextStart, stopMSec = nextStop)
-  }
+  /**
+    * This method is meant to subtract the shuffle subtask from the beginning of a reducer
+    * @param shuffle the shuffle subtask
+    * @return a clean reducer Record without shuffle subtask
+    * @throws RuntimeException if the shuffle subtask does not overlap or is too long
+    */
+  def cutShuffleFromHead(shuffle: Record): Record = if (stopMSec < shuffle.startMSec)
+    throw new RuntimeException(s"error: shuffle subtask ${shuffle.name} does not overlap reducer")
+  else if (stopMSec < shuffle.stopMSec)
+    throw new RuntimeException(s"error: shuffle subtask ${shuffle.name} is longer than reducer")
+  else copy(durationMSec = stopMSec - shuffle.stopMSec, startMSec = shuffle.stopMSec)
 
   def cutFrontOverlap(previousCompletion: Long): Record = previousCompletion match {
     case time if stopMSec < time =>
